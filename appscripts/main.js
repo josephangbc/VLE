@@ -21,7 +21,8 @@ var box = new Box(paper, padding);
 // Create a lid
 const lidH = 0;
 const particleRadius = 10;
-var lid = new Lid(paper, box, lidH, particleRadius);
+let numParticles = 50;
+var lid = new Lid(paper, box, lidH, particleRadius, numParticles);
 
 
 // Create a container for the particles
@@ -29,8 +30,7 @@ var lid = new Lid(paper, box, lidH, particleRadius);
 var container = lid.container;
 
 // Create Particle
-let numParticles = 50;
-// var particleArray = Array(numParticles).fill().map(() => new Particle(paper, container, particleSize));
+
 var particleArray = Array(numParticles);
 for (let i = 0; i < numParticles; i++) {
     let add = false;
@@ -50,6 +50,13 @@ for (let i = 0; i < numParticles; i++) {
     }
     particleArray[i] = newParticle;
 }
+
+// particleArray[0].pos = [10, 10, particleRadius];
+// particleArray[1].pos = [100, 100, particleRadius];
+// particleArray[1].body.attr({"fill": "blue"});
+//
+// particleArray[0].vel = [-0.2, -0.2];
+// particleArray[1].vel = [0.2, 0.2];
 
 // Move particles
 function moveParticles() {

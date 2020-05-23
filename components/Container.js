@@ -8,5 +8,6 @@ export default class Container {
 
     refresh() {
         this.dim = [this.lid.dim[0], this.lid.dim[3], this.box.dim[2], this.box.dim[3]];
+        console.log(this.dim);
     }
 }

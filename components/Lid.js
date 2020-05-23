@@ -1,7 +1,7 @@
 import Container from "/components/Container.js";
 
 export default class Lid {
-    constructor(paper, box, lidH, particleRadius) {
+    constructor(paper, box, lidH, particleRadius, numParticles) {
         //  Dimensions
         this.paper = paper;
         this.box = box;
@@ -46,10 +46,17 @@ export default class Lid {
                 let newY = dim[1] + dy;
                 if (newY < box.dim[1]) {
                     newY = box.dim[1];
+                    dy = 0;
                 }
-                let botLimit = box.dim[3] - particleDiameter - height;
+                let botLimit = box.dim[3] - particleDiameter - height - (numParticles / particleRadius * 20) ;
                 if (newY > botLimit) {
                     newY = botLimit;
+                    dy = 0;
+                }
+                if (newY  >= botLimit) {
+                    body.attr({"fill": "red"});
+                } else {
+                    body.attr({"fill": "grey"});
                 }
                 body.animate({'y': newY }, 0.00001);
                 oy = ev.offsetY;
