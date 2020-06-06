@@ -1,17 +1,65 @@
-// Goal: given F,z,P,T solve for x,y for n component system
-// Required: Ki = f(T,P,{xi})
-
-// Subproblem: Determine K
 /* 
-    In general: K = K(T,P,{xi})
-    Approximation used below: K = K(T,P) using McWilliam equation which is a fit of Depriester chart
-    Other approximations:
-    Raoult's law: K = VP(T)/P where VP is vapor pressure
-    Modified Raoult's law: K = lambda*VP/P where lambda is activity coefficient
-    VP can be determined using Antoine equation
-    lambda can be determined from Margules equation
+For a mixture of any number of components from the list given below, this procedure can calculate the {xi},{yi} and V/F
+
+Inputs required: 
+1) Component Array (limited by the list below)
+2) Temperature, T [degC]
+3) Pressure, P [kPa]
+4) Overall composition, z (an array)
+
+Calculation details: 
+Remember the Depriester chart to find K = K(T,P)? 
+Wankat's textbook's equation 2-30 is McWilliam equation which is a fit for this chart
+Corresponding coefficient for a few components are given in table 2-3
+5) Calculate lnKi =  aT1/T**2 + aT2/T + aT6 + ap1*lnP + ap2/P**2 + ap3/P where T is in Rankine and P is in psia
+    Put them into an array K
+6) xi = g(V/F,Ki,zi) and yi = h(V/F,Ki,zi) can be derived
+    Summation of xi and yi equals 1
+    Essentially, need to determine V/F such that this happens
+    Rachford Rice equation takes f(V/F,K,z) = summation of (h(.) - g(.)) 
+    Solution is when f(.) = 0
+7) Problem is to find the root of this equation 
+    Newton's method is used
+    * Newton's method has the possibility of convergence failure but this equation has good convergence property
+8) Once V/F is found, xi = g(.) and yi = h(.) can be determined and the problem is solved
+    * If V/F is > 1, superheated vapor
+    * If V/F is < 1, subcooled liquid
+
+Extensions:
+    More chemicals could be added for application of Raoult's law
+    Ki = (VPi(T))/P where VPi(T) is the vapor pressure of component i at temperature T
+    VPi(T) = Ai-Bi/(T+Ci) {Antoine's equation}
+    Assumptions of Raoult's law:
+    1) Vapor is ideal gas mixture -> Can use partial pressure instead of fugacity (? Didn't really check in detail)
+    2) Ideal solution -> Activity coefficient = 1 
+
+    Modified Raoult's law
+    Ki = lambda*(VPi(T))/P where lambda is activity coefficient
+    Considering something like Margules Equation, lambda and therefore Ki will change everytime composition is different
+    At long as root of f(.) is found, solution is found but convergence might be difficult
+
+
+
+
 */
 
+// Philip Wankat Table 2-3
+let McWilliam_Coeff = {
+    'Methane': [-292860, 0, 8.2445, -0.8951, 59.8465, 0, 1.66],
+    'Ethylene': [-600076.875, 0, 7.90595, -0.84677, 42.94594, 0, 2.65],
+    'Ethane': [-687248.25, 0, 7.90694, -0.88600, 49.02654, 0, 1.95],
+    'Propylene': [-923484.6875, 0, 7.71725, -0.87871, 47.67624, 0, 1.90],
+    'Propane':  [-970688.5625, 0, 7.15059, -0.76984, 0, 6.90224, 2.35],
+    'Isobutane': [-1166846, 0, 7.72668, -0.92213, 0, 0, 2.52],
+    'n-Butane': [-1280557, 0, 7.94986, -0.96455, 0, 0, 3.61],
+    'Isopentane': [-1481.583, 0, 7.58071, -0.93159, 0, 0, 4.56],
+    'n-Pentane': [-1524891, 0, 7.33129, -0.89143, 0, 0, 4.30],
+    'n-Hexane': [-1778901, 0, 6.96783, -0.84634, 0, 0, 4.90],
+    'n-Heptane': [-2018803, 0, 6.52914, -0.79543, 0, 0, 6.34],
+    'n-Octane': [0, -7646.81641, 12.48457, -0.73152, 0, 0, 7.58],
+    'n-Nonane': [-2551040, 0, 5.69313, -0.67818, 0, 0, 9.40],
+    'n-Decane': [0, -9760.45703, 13.80354, -0.71470, 0, 0, 5.69],
+}
 
 
 let n = 4; // Number of components
@@ -23,13 +71,7 @@ let z = [0.30, 0.10, 0.15, 0.45]; // Overall composition
 let T_degR = T * 9/5 + 491.67;
 let P_psia = P * 0.145;
 
-// Philip Wankat Table 2-3
-let McWilliam_Coeff = {
-    'Propane':  [-970688.5625, 0, 7.15059, -0.76984, 0, 6.90224, 2.35],
-    'n-Butane': [-1280557, 0, 7.94986, -0.96455, 0, 0, 3.61],
-    'n-Pentane': [-1524891, 0, 7.33129, -0.89143, 0, 0, 4.30],
-    'n-Hexane': [-1778901, 0, 6.96783, -0.84634, 0, 0, 4.90],
-}
+
 
 // In this example, K is found using McWilliam equation fit of the Depriester chart
 let K = [];
