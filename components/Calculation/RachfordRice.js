@@ -42,6 +42,13 @@ Extensions:
 
 
 */
+export default class RachfordRice {
+    constructor() {
+
+    }
+
+
+}
 
 // Philip Wankat Table 2-3
 let McWilliam_Coeff = {
@@ -62,11 +69,11 @@ let McWilliam_Coeff = {
 }
 
 
-let n = 4; // Number of components
+let n = 2; // Number of components
 let T = 20; // degC
 let P = 200; // kPa
-let components = ['Propane','n-Butane','n-Pentane','n-Hexane'];
-let z = [0.30, 0.10, 0.15, 0.45]; // Overall composition
+let components = ['Propane','n-Butane'];
+let z = [0.30, 0.70]; // Overall composition
 
 let T_degR = T * 9/5 + 491.67;
 let P_psia = P * 0.145;

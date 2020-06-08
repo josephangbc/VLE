@@ -1,10 +1,22 @@
+
+
 export default class Particle {
-    constructor(paper, container, r, particleArray) {
+    static colors = new Array('red', 'blue', 'green');
+
+    constructor(paper, vaporPhase, liquidPhase, r, particleArray, comType, phaseType, ExchangeRecord) {
+
         // Radius
         this.r = r;
 
         // Container describing bounds for particle
-        this.container = container;
+        if (phaseType == 'V') {
+            this.container = vaporPhase;
+        } else {
+            this.container = liquidPhase;
+        }
+        this.vaporPhase = vaporPhase;
+        this.liquidPhase = liquidPhase;
+        var container = this.container;
 
         // Randomize starting position
         let xPos = (container.dim[2] - container.dim[0] - this.r * 2)*Math.random() + container.dim[0] + this.r;
@@ -13,15 +25,17 @@ export default class Particle {
 
         // Randomise starting direction while maintaining speed of particle
         let f = Math.random();
-        this.speed = 1;
+        this.speed = 5;
         let vy = Math.sqrt(Math.pow(this.speed,2) / (Math.pow(f,2)+1));
         this.vel = [(Math.round(Math.random()) * 2 - 1)*vy*f, (Math.round(Math.random()) * 2 - 1)*vy];
 
         //  Draw particle
         this.body = paper.circle(this.pos[0],this.pos[1], this.r);
-        this.body.attr({"fill": "red"});
+        this.body.attr({"fill": Particle.colors[comType]});
 
         this.particleArray = particleArray;
+        this.phaseType = phaseType;
+        this.exchange = ExchangeRecord;
 
     }
     move() {
@@ -30,10 +44,6 @@ export default class Particle {
         this.pos[1] += this.vel[1];
         // Check for Wall Collision
         this.correctForWallCollision();
-    }
-
-    moveActual() {
-        // Assign position to particle
         this.body.attr({'cx':this.pos[0],'cy':this.pos[1]});
     }
 
@@ -51,15 +61,64 @@ export default class Particle {
         }
         // Particle collide at Top
         if (this.pos[1] < bounds[1] + this.r){
-            this.pos[1] = bounds[1] + this.r;
-            this.vel[1] = -this.vel[1];
+            if (this.phaseType == 'L') {
+                // if No Exchange, then bounce
+                if (this.checkExchange() == false) {
+                    this.vel[1] = -this.vel[1];
+                    this.pos[1] = bounds[1] + this.r;
+                } else {
+                    this.pos[1] = this.container.dim[3] - this.r;
+                }
+            } else {
+                this.vel[1] = -this.vel[1];
+                this.pos[1] = bounds[1] + this.r;
+            }
         }
         // Particle collide at Bottom
         if (this.pos[1] > bounds[3] - this.r){
-            this.pos[1] = bounds[3] - this.r;
-            this.vel[1] = -this.vel[1];
+            if (this.phaseType == 'V') {
+                // if No Exchange, then bounce
+                if (this.checkExchange() == false) {
+                    this.pos[1] = bounds[3] - this.r;
+                    this.vel[1] = -this.vel[1];
+                } else {
+                    this.pos[1] = this.container.dim[1] + this.r;
+                }
+            } else {
+                this.pos[1] = bounds[3] - this.r;
+                this.vel[1] = -this.vel[1];
+            }
         }
     }
+
+    checkExchange() {
+        if (this.phaseType =='V') {
+            if (this.exchange.record[this.comType]) {
+                this.phaseType = 'L';
+                this.container = this.liquidPhase;
+                this.exchange.record[this.comType] = false;
+                return true;
+            }
+        } else {
+            if (!this.exchange.record[this.comType]) {
+                this.phaseType = 'V';
+                this.container = this.vaporPhase;
+                this.exchange.record[this.comType] = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    changeComType(comType) {
+        this.comType = comType;
+        this.body.attr({"fill": Particle.colors[comType]});
+    }
+
+
+
+
+    //////// Archive ///////////////////////
 
 
     correctForParticleCollision() {
@@ -109,80 +168,12 @@ export default class Particle {
                     sumVel = Math.sqrt(Math.pow(particleArray[i].vel[0],2) + Math.pow(particleArray[i].vel[1],2));
                     particleArray[i].vel = [particleArray[i].vel[0]/sumVel*this.speed, particleArray[i].vel[1]/sumVel*this.speed];
 
-                    // let s = Math.sqrt(Math.pow(this.vel[0],2) + Math.pow(this.vel[1],2));
-                    // if (s > this.speed) {
-                    //     console.log(s);
-                    // }
-                    // s = Math.sqrt(Math.pow(particleArray[i].vel[0],2) + Math.pow(particleArray[i].vel[1],2));
-                    // if (s > this.speed) {
-                    //     console.log(s);
-                    // }
                     // Correct position
                     this.pos[0] += this.vel[0] * timeReverse;
                     this.pos[1] += this.vel[1] * timeReverse;
                     particleArray[i].pos[0] += particleArray[i].vel[0] * timeReverse;
                     particleArray[i].pos[1] += particleArray[i].vel[1] * timeReverse;
                 }
-
-                    // if (!vxDiff && dx !== 0) {
-                    //     if (dx > 0 && this.vel[0] < 0) {
-                    //         let time = dist / (Math.abs(particleArray[i].vel[0]) - Math.abs(this.vel[0]));
-                    //         this.pos[0] -= 2 * this.vel[0] * time;
-                    //         this.vel[0] = -this.vel[0];
-                    //     } else if (dx < 0 && this.vel[0] < 0) {
-                    //         let time = dist / (Math.abs(this.vel[0]) - Math.abs(particleArray[i].vel[0]));
-                    //         particleArray[i].pos[0] -= 2 * particleArray[i].vel[0] * time;
-                    //         particleArray[i].vel[0] = -particleArray[i].vel[0];
-                    //     }
-                    // }
-
-                // if (dist <= 2*this.r) {
-                //     let first = (this.vel[0] < 0) != (particleArray[i].vel[0] < 0);
-                //     let second = (this.vel[1] < 0) != (particleArray[i].vel[1] < 0);
-                //     if (first && second) {
-                //         this.vel[0] = -this.vel[0];
-                //         this.vel[1] = -this.vel[1];
-                //         particleArray[i].vel[0] = -particleArray[i].vel[0];
-                //         particleArray[i].vel[1] = -particleArray[i].vel[1];
-                //
-                //         this.pos[0] += this.vel[0];
-                //         this.pos[1] += this.vel[1];
-                //         particleArray[i].pos[0] += particleArray[i].vel[0];
-                //         particleArray[i].pos[1] += particleArray[i].vel[1];
-                //     } else if (first) {
-                //         this.vel[0] = -this.vel[0];
-                //         particleArray[i].vel[0] = -particleArray[i].vel[0];
-                //
-                //         this.pos[0] += this.vel[0];
-                //         particleArray[i].pos[0] += particleArray[i].vel[0];
-                //     } else if (second) {
-                //         this.vel[1] = -this.vel[1];
-                //         particleArray[i].vel[1] = -particleArray[i].vel[1];
-                //
-                //         this.pos[1] += this.vel[1];
-                //         particleArray[i].pos[1] += particleArray[i].vel[1];
-                //     } else if (!first) {
-                //         if (this.vel[0] < 0) {
-                //             if (this.pos[0] > particleArray[i].pos[0]) {
-                //                 this.vel[0] = -this.vel[0];
-                //                 this.pos[0] += this.vel[0];
-                //             } else {
-                //                 particleArray[i].vel[0] = -particleArray[i].vel[0];
-                //                 particleArray[i].pos[0] += particleArray[i].vel[0];
-                //             }
-                //         }
-                //     } else if (!second) {
-                //         if (this.vel[1] < 0) {
-                //             if (this.pos[1] > particleArray[i].pos[1]) {
-                //                 this.vel[1] = -this.vel[1];
-                //                 this.pos[1] += this.vel[1];
-                //             } else {
-                //                 particleArray[i].vel[1] = -particleArray[i].vel[1];
-                //                 particleArray[i].pos[1] += particleArray[i].vel[1];
-                //             }
-                //         }
-                //     }
-                // }
             }
         }
     }

@@ -1,7 +1,8 @@
 import Lid from "/components/Lid.js";
 import Particle from "/components/Particle.js";
-import Container from "/components/Container.js";
 import Box from "/components/Box.js";
+import Exchange from "/components/Exchange.js";
+import RachfordRice from "/components/RachfordRice.js";
 
 // Grab the div where we will put our Raphael paper
 let centerDiv = document.getElementById("centerDiv");
@@ -9,62 +10,63 @@ let centerDiv = document.getElementById("centerDiv");
 // Create the Raphael paper that we will use for drawing and creating graphical objects
 let paper = new Raphael(centerDiv);
 
-// put the width and heigth of the canvas into variables for our own convenience
-let pWidth = paper.width;
-let pHeight = paper.height;
-console.log("pWidth is " + pWidth + ", and pHeight is " + pHeight);
+// put the width and height of the canvas into variables for our own convenience
+
+// RachFordRice Calculations
+var R = new RachfordRice(2,85, 101, ['n-Pentane','n-Heptane'], [0.30, 0.70]);
+let y0 = R.y[0];
+let x0 = R.x[0];
+let vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
+
+console.log("vF = " + vF);
+let volVap = 0.8; // Volume fraction of Vapor
+let specs = [y0, x0, vF, volVap];
 
 // Just create a box
 let padding = 10;
 var box = new Box(paper, padding);
 
+// Create Exchange Record
+var ExchangeRecord = new Exchange();
+
 // Create a lid
 const lidH = 0;
 const particleRadius = 10;
 let numParticles = 50;
-var lid = new Lid(paper, box, lidH, particleRadius, numParticles);
+var lid = new Lid(paper, box, lidH, particleRadius, numParticles, specs);
 
 
-// Create a container for the particles
-// const container = new Container(paper, box, lid);
-var container = lid.container;
+// Get Containers for Particles
+var vaporPhase = lid.vaporPhase;
+var liquidPhase = lid.liquidPhase;
 
 // Create Particle
+let nVap = vF * numParticles;
+let nLiq = numParticles - nVap;
+let ny0 = y0 * nVap;
+let nx0 = x0 * nLiq + ny0;
+let ny1 = nVap - ny0 + nx0;
+let nx1 = nLiq - nx0 + ny1;
 
-var particleArray = Array(numParticles);
+let particleArray = Array(numParticles);
+
 for (let i = 0; i < numParticles; i++) {
-    let add = false;
-    while (add == false) {
-        var newParticle = new Particle(paper, container, particleRadius, particleArray);
-        add = true;
-        for (let j = 0; j < i; j++) {
-            let dx = newParticle.pos[0] - particleArray[j].pos[0];
-            let dy = newParticle.pos[1] - particleArray[j].pos[1];
-            let dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-            if (dist < 3*particleRadius) {
-                add = false;
-                newParticle.body.remove();
-                break;
-            }
-        }
+    if (i  < ny0) {
+        particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 0, 'V', ExchangeRecord);
+    } else if (i < nx0) {
+        particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 0, 'L', ExchangeRecord);
+    } else if (i < ny1) {
+        particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 1, 'V', ExchangeRecord);
+    } else {
+        particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 1, 'L', ExchangeRecord);
     }
-    particleArray[i] = newParticle;
 }
-
-// particleArray[0].pos = [10, 10, particleRadius];
-// particleArray[1].pos = [100, 100, particleRadius];
-// particleArray[1].body.attr({"fill": "blue"});
-//
-// particleArray[0].vel = [-0.2, -0.2];
-// particleArray[1].vel = [0.2, 0.2];
 
 // Move particles
 function moveParticles() {
     particleArray.map(p => p.move());
-    particleArray.map(p => p.correctForParticleCollision());
-    particleArray.map(p => p.moveActual());
 }
-setInterval(moveParticles, 1);
+setInterval(moveParticles, 25);
 
 
 //----------------------------------------------------------------

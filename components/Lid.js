@@ -1,8 +1,8 @@
 import Container from "/components/Container.js";
 
 export default class Lid {
-    constructor(paper, box, lidH, particleRadius, numParticles) {
-        //  Dimensions
+    constructor(paper, box, lidH, particleRadius, numParticles, specs) {
+        // Initialization
         this.paper = paper;
         this.box = box;
         var box = this.box;
@@ -13,12 +13,27 @@ export default class Lid {
         let body = paper.rect(this.dim[0], this.dim[1], box.dim[2] - box.dim[0], this.height);
         body.attr({"fill": "grey"});
         this.body = body;
-        this.container = new Container(paper, box, this);
-        var container = this.container;
+
+        // Vapor Liquid Specifications [y1, x1, vF, volVap];
+        this.specs = specs;
+        var specs = this.specs;
+
+        // Translate Vapor Liquid Specifications into dimensions
+        var HeightVap = specs[3] * (this.box.height - this.height);
+        var HeightLiq = (this.box.height - this.height) - HeightVap;
+
+        // Container for Vapor Phase
+        this.vaporPhase = new Container(paper, box, this, 'V', HeightVap);
+        var vaporPhase = this.vaporPhase;
+
+        // Container for Liquid Phase
+        this.liquidPhase = new Container(paper, box, this, 'L', HeightLiq);
+        var liquidPhase = this.liquidPhase;
+
+        // Particle Diameter
         var particleDiameter = particleRadius*2;
 
-        //  Move Lid
-
+        //  For Lid Movement
         this.clickState = 0;
         var clickState = this.clickState
         var oy = 0;
@@ -48,7 +63,8 @@ export default class Lid {
                     newY = box.dim[1];
                     dy = 0;
                 }
-                let botLimit = box.dim[3] - particleDiameter - height - (numParticles / particleRadius * 20) ;
+                // let botLimit = vaporPhase.dim[3] - particleDiameter - height - (numParticles / particleRadius * 20);
+                let botLimit = vaporPhase.dim[3] - particleDiameter - height - (numParticles / particleRadius * 15);
                 if (newY > botLimit) {
                     newY = botLimit;
                     dy = 0;
@@ -58,11 +74,11 @@ export default class Lid {
                 } else {
                     body.attr({"fill": "grey"});
                 }
-                body.animate({'y': newY }, 0.00001);
+                body.animate({'y': newY }, 0.1);
                 oy = ev.offsetY;
                 dim[1] += dy;
                 dim[3] += dy;
-                container.refresh();
+                vaporPhase.refresh();
             }
         });
     }

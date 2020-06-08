@@ -22,7 +22,7 @@ fs.readFile('index.html', (err, html) => {
     const server = http.createServer((req, res) => {
         const myuri = url.parse(req.url).pathname;
         const filename = path.join(process.cwd(), unescape(myuri));
-        console.log('File you are looking for is:' + filename);
+        // console.log('File you are looking for is:' + filename);
         let loadFile;
 
         try {
