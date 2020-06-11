@@ -14,22 +14,15 @@ let paper = new Raphael(centerDiv);
 
 // RachFordRice Calculations
 let Tslider = document.getElementById("temperature");
-var T = Tslider.value; 
-
-Tslider.addEventListener("input",function(ev){
-    console.log("Changed slider")
-    T = Tslider.value
-    console.log("Inside event listener",T)
-});
+var T = Tslider.value;
 
 
 
-var R = new RachfordRice(2,T, 101, ['n-Pentane','n-Heptane'], [0.30, 0.70]);
+var R = new RachfordRice(2,T , 101, ['n-Pentane','n-Heptane'], [0.30, 0.70]);
 let y0 = R.y[0];
 let x0 = R.x[0];
 let vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
 
-console.log("vF = " + vF);
 let volVap = 0.8; // Volume fraction of Vapor
 let specs = [y0, x0, vF, volVap];
 
@@ -37,13 +30,10 @@ let specs = [y0, x0, vF, volVap];
 let padding = 10;
 var box = new Box(paper, padding);
 
-// Create Exchange Record
-var ExchangeRecord = new Exchange();
-
 // Create a lid
 const lidH = 0;
 const particleRadius = 10;
-let numParticles = 50;
+let numParticles = 20;
 var lid = new Lid(paper, box, lidH, particleRadius, numParticles, specs);
 
 
@@ -52,32 +42,59 @@ var vaporPhase = lid.vaporPhase;
 var liquidPhase = lid.liquidPhase;
 
 // Create Particle
-let nVap = vF * numParticles;
+
+let n0 = Math.round(R.z[0] * numParticles);
+let n1 = numParticles - n0;
+let nVap = Math.round(vF * numParticles);
 let nLiq = numParticles - nVap;
-let ny0 = y0 * nVap;
-let nx0 = x0 * nLiq + ny0;
-let ny1 = nVap - ny0 + nx0;
-let nx1 = nLiq - nx0 + ny1;
+let ny0 = Math.round(y0 * nVap);
+let ny1 = nVap - ny0;
+let nx0 = Math.round(x0 * nLiq);
+let nx1 = nLiq - nx0;
+
+// Create Exchange Record
+var ExchangeRecord = new Exchange(ny0, ny1, nx0, nx1);
 
 let particleArray = Array(numParticles);
 
 for (let i = 0; i < numParticles; i++) {
     if (i  < ny0) {
         particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 0, 'V', ExchangeRecord);
-    } else if (i < nx0) {
+    } else if (i < nx0 + ny0) {
         particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 0, 'L', ExchangeRecord);
-    } else if (i < ny1) {
+    } else if (i < ny1 + nx0 + ny0) {
         particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 1, 'V', ExchangeRecord);
     } else {
         particleArray[i] = new Particle(paper, vaporPhase, liquidPhase, particleRadius, particleArray, 1, 'L', ExchangeRecord);
     }
 }
 
+Tslider.addEventListener("input",function(ev){
+    T = Tslider.value
+    recalcRachfordRice(ExchangeRecord, T);
+});
+
+function recalcRachfordRice(exchange, T) {
+    let R = new RachfordRice(2,T , 101, ['n-Pentane','n-Heptane'], [0.50, 0.50]);
+    let y0 = R.y[0];
+    let x0 = R.x[0];
+    let vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
+    let n0 = Math.round(R.z[0] * numParticles);
+    let n1 = numParticles - n0;
+    let nVap = Math.round(vF * numParticles);
+    let nLiq = numParticles - nVap;
+    let ny0 = Math.round(y0 * nVap);
+    let ny1 = nVap - ny0;
+    let nx0 = Math.round(x0 * nLiq);
+    let nx1 = nLiq - nx0;
+    let target = [ny0, ny1, nx0, nx1];
+    exchange.setTarget(target);
+}
 // Move particles
 function moveParticles() {
     particleArray.map(p => p.move());
 }
-setInterval(moveParticles, 25);
+setInterval(moveParticles, 200);
 
 
 //----------------------------------------------------------------

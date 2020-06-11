@@ -36,7 +36,6 @@ export default class Particle {
         this.particleArray = particleArray;
         this.phaseType = phaseType;
         this.exchange = ExchangeRecord;
-
         this.comType = comType;
     }
     move() {
@@ -94,17 +93,15 @@ export default class Particle {
 
     checkExchange() {
         if (this.phaseType =='V') {
-            if (this.exchange.record[this.comType]) {
+            if (this.exchange.checkShift(this.comType, this.phaseType)) {
                 this.phaseType = 'L';
                 this.container = this.liquidPhase;
-                this.exchange.record[this.comType] = false;
                 return true;
             }
         } else {
-            if (!this.exchange.record[this.comType]) {
+            if (this.exchange.checkShift(this.comType, this.phaseType)) {
                 this.phaseType = 'V';
                 this.container = this.vaporPhase;
-                this.exchange.record[this.comType] = true;
                 return true;
             }
         }
@@ -115,6 +112,7 @@ export default class Particle {
         this.comType = comType;
         this.body.attr({"fill": Particle.colors[comType]});
     }
+
 
 
 
