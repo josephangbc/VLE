@@ -37,6 +37,7 @@ export default class Particle {
         this.phaseType = phaseType;
         this.exchange = ExchangeRecord;
 
+        this.comType = comType;
     }
     move() {
         // Update Position

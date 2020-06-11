@@ -13,7 +13,18 @@ let paper = new Raphael(centerDiv);
 // put the width and height of the canvas into variables for our own convenience
 
 // RachFordRice Calculations
-var R = new RachfordRice(2,85, 101, ['n-Pentane','n-Heptane'], [0.30, 0.70]);
+let Tslider = document.getElementById("temperature");
+var T = Tslider.value; 
+
+Tslider.addEventListener("input",function(ev){
+    console.log("Changed slider")
+    T = Tslider.value
+    console.log("Inside event listener",T)
+});
+
+
+
+var R = new RachfordRice(2,T, 101, ['n-Pentane','n-Heptane'], [0.30, 0.70]);
 let y0 = R.y[0];
 let x0 = R.x[0];
 let vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules

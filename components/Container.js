@@ -6,6 +6,7 @@ export default class Container {
         this.box = box;
         this.phase = phase;
         this.height = height;
+        
 
         // Calculate dimensions   // [x1, y1, x2, y2]
         if (phase == 'V') {
