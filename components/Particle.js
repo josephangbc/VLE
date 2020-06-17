@@ -59,36 +59,68 @@ export default class Particle {
             this.pos[0] = bounds[2] - this.r;
             this.vel[0] = -this.vel[0];
         }
-        // Particle collide at Top
-        if (this.pos[1] < bounds[1] + this.r){
-            if (this.phaseType == 'L') {
-                // if No Exchange, then bounce
-                if (this.checkExchange() == false) {
+        // Interface interaction from liquid phase
+        if (this.phaseType == 'L') {
+            if (this.pos[1] < bounds[1] + this.r && this.vel[1] < 0) {
+                if (this.checkExchange() == false){
                     this.vel[1] = -this.vel[1];
-                    this.pos[1] = bounds[1] + this.r;
-                } else {
-                    this.pos[1] = this.container.dim[3] - this.r;
+                    let overshoot = (bounds[1] + this.r) - this.pos[1]
+                    this.pos[1] += 2*overshoot;
                 }
-            } else {
+            } else if (this.pos[1] > bounds[3] - this.r){
+                // Liquid phase wall collision below
                 this.vel[1] = -this.vel[1];
-                this.pos[1] = bounds[1] + this.r;
+                let overshoot = this.pos[1] - (bounds[3] - this.r);
+                this.pos[1] -= 2*overshoot
+            }
+        } else {
+            // Vapor phase wall collision at top
+            if (this.pos[1] < bounds[1] + this.r){
+                this.vel[1] = - this.vel[1];
+                let overshoot = (bounds[1] + this.r) - this.pos[1]
+                this.pos[1] += 2*overshoot;
+            } else if (this.pos[1] > bounds[3] - this.r && this.vel[1] > 0){
+                // Interface interaction from vapor phase
+                if (this.checkExchange() == false){
+                    this.vel[1] = -this.vel[1];
+                    let overshoot = this.pos[1] - (bounds[3] - this.r);
+                    this.pos[1] -= 2*overshoot
+                }
             }
         }
-        // Particle collide at Bottom
-        if (this.pos[1] > bounds[3] - this.r){
-            if (this.phaseType == 'V') {
-                // if No Exchange, then bounce
-                if (this.checkExchange() == false) {
-                    this.pos[1] = bounds[3] - this.r;
-                    this.vel[1] = -this.vel[1];
-                } else {
-                    this.pos[1] = this.container.dim[1] + this.r;
-                }
-            } else {
-                this.pos[1] = bounds[3] - this.r;
-                this.vel[1] = -this.vel[1];
-            }
-        }
+
+        // Original 
+
+        // // Particle collide at Top
+        // if (this.pos[1] < bounds[1] + this.r){
+        //     if (this.phaseType == 'L') {
+        //         // if No Exchange, then bounce
+        //         if (this.checkExchange() == false) {
+        //             this.vel[1] = -this.vel[1];
+        //             this.pos[1] = bounds[1] + this.r;
+        //         } else {
+        //             this.pos[1] = this.container.dim[3] - this.r;
+        //         }
+        //     } else {
+        //         this.vel[1] = -this.vel[1];
+        //         this.pos[1] = bounds[1] + this.r;
+        //     }
+        // }
+        // // Particle collide at Bottom
+        // if (this.pos[1] > bounds[3] - this.r){
+        //     if (this.phaseType == 'V') {
+        //         // if No Exchange, then bounce
+        //         if (this.checkExchange() == false) {
+        //             this.pos[1] = bounds[3] - this.r;
+        //             this.vel[1] = -this.vel[1];
+        //         } else {
+        //             this.pos[1] = this.container.dim[1] + this.r;
+        //         }
+        //     } else {
+        //         this.pos[1] = bounds[3] - this.r;
+        //         this.vel[1] = -this.vel[1];
+        //     }
+        // }
     }
 
     checkExchange() {

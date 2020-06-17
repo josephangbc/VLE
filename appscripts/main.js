@@ -15,8 +15,8 @@ let paper = new Raphael(centerDiv);
 // RachFordRice Calculations
 let Tslider = document.getElementById("temperature");
 Tslider.min = 50;
-Tslider.max = 100;
-Tslider.value = 75;
+Tslider.max = 120;
+Tslider.value = 50;
 var T = Tslider.value;
 
 let P = 101; // kPa
