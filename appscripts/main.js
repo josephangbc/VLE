@@ -16,9 +16,12 @@ let paper = new Raphael(centerDiv);
 let Tslider = document.getElementById("temperature");
 var T = Tslider.value;
 
+let P = 101; // kPa
+let components = ['n-Pentane','n-Heptane'];
+let z = [0.30,0.70];
 
 
-var R = new RachfordRice(2,T , 101, ['n-Pentane','n-Heptane'], [0.30, 0.70]);
+var R = new RachfordRice(2,T , P, components, z);
 let y0 = R.y[0];
 let x0 = R.x[0];
 let vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
@@ -75,7 +78,7 @@ Tslider.addEventListener("input",function(ev){
 });
 
 function recalcRachfordRice(exchange, T) {
-    let R = new RachfordRice(2,T , 101, ['n-Pentane','n-Heptane'], [0.50, 0.50]);
+    let R = new RachfordRice(2,T , P, components, z);
     let y0 = R.y[0];
     let x0 = R.x[0];
     let vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules

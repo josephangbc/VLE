@@ -87,7 +87,7 @@ export default class RachfordRice {
         // v = V/F
         let result = [];
         for (let i = 0; i < this.K.length; i++){
-            result[i] = this.z[i]/(1+(this.K[i]-1)*this.v);
+            result[i] = this.z[i]/(1+(this.K[i]-1)*( Math.min(Math.max(this.v, 0), 1)));
         }
         return result; // Array of liquid compositions {xi}
     }
