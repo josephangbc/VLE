@@ -14,6 +14,9 @@ let paper = new Raphael(centerDiv);
 
 // RachFordRice Calculations
 let Tslider = document.getElementById("temperature");
+Tslider.min = 50;
+Tslider.max = 100;
+Tslider.value = 75;
 var T = Tslider.value;
 
 let P = 101; // kPa
@@ -97,7 +100,7 @@ function recalcRachfordRice(exchange, T) {
 function moveParticles() {
     particleArray.map(p => p.move());
 }
-setInterval(moveParticles, 200);
+setInterval(moveParticles, 40);
 
 
 //----------------------------------------------------------------
