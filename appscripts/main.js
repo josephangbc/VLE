@@ -15,15 +15,19 @@ let paper = new Raphael(centerDiv);
 
 // RachFordRice Calculations
 let Tslider = document.getElementById("Tslider");
-Tslider.min = 50;
-Tslider.max = 120;
-Tslider.value = 50;
-var T = Tslider.value;
+let Pslider = document.getElementById("Pslider");
 
-let P = 101; // kPa
+var Tmin = 50;  Tslider.min = Tmin;
+var Tmax = 120; Tslider.max = Tmax;
+var T = 50; Tslider.value = 50;
+
+var Pmin = 50; Pslider.min = Pmin;
+var Pmax = 1000; Pslider.max = Pmax;
+var P = 101; Pslider.value = 101;
+
+// let P = 101; // kPa
 let components = ['n-Pentane','n-Heptane'];
 let z = [0.30,0.70];
-
 
 var R = new RachfordRice(2,T , P, components, z);
 let y0 = R.y[0];
@@ -81,7 +85,31 @@ Tslider.addEventListener("input",function(ev){
     recalcRachfordRice(ExchangeRecord, T);
 });
 
+Pslider.addEventListener("input", function(ev){
+    P = Pslider.value;
+    recalcP(ExchangeRecord,P);
+    plot.P = P;
+    plot.plot_yx_Tslider(Tmin,Tmax,1)
+});
+
 function recalcRachfordRice(exchange, T) {
+    let R = new RachfordRice(2,T , P, components, z);
+    let y0 = R.y[0];
+    let x0 = R.x[0];
+    let vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
+    let n0 = Math.round(R.z[0] * numParticles);
+    let n1 = numParticles - n0;
+    let nVap = Math.round(vF * numParticles);
+    let nLiq = numParticles - nVap;
+    let ny0 = Math.round(y0 * nVap);
+    let ny1 = nVap - ny0;
+    let nx0 = Math.round(x0 * nLiq);
+    let nx1 = nLiq - nx0;
+    let target = [ny0, ny1, nx0, nx1];
+    exchange.setTarget(target);
+}
+
+function recalcP(exchange, P) {
     let R = new RachfordRice(2,T , P, components, z);
     let y0 = R.y[0];
     let x0 = R.x[0];
@@ -139,7 +167,7 @@ function recalcRachfordRice(exchange, T) {
 
   let plot = new Plot('Plotly',T , P, components, z)
   plot.plot_yx_Tslider(0,200,1)
-
+  
 // Move particles
 function moveParticles() {
     particleArray.map(p => p.move());

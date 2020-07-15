@@ -108,7 +108,7 @@ main {
 
 .animation {
   background: #ffff99;
-  width: 50%;
+  width: 40%;
   height: 100%;
   text-align: center;
 
@@ -116,7 +116,7 @@ main {
 
 .plot {
   background: #ccffcc;
-  width: 50%;
+  width: 60%;
   height: 100%;
   text-align: center;
 }
