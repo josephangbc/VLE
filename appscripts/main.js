@@ -3,6 +3,7 @@ import Particle from "/components/Particle.js";
 import Box from "/components/Box.js";
 import Exchange from "/components/Exchange.js";
 import RachfordRice from "/components/RachfordRice.js";
+import Plot from "/components/Plot.js"
 
 // Grab the div where we will put our Raphael paper
 let centerDiv = document.getElementById("centerDiv");
@@ -13,7 +14,7 @@ let paper = new Raphael(centerDiv);
 // put the width and height of the canvas into variables for our own convenience
 
 // RachFordRice Calculations
-let Tslider = document.getElementById("temperature");
+let Tslider = document.getElementById("Tslider");
 Tslider.min = 50;
 Tslider.max = 120;
 Tslider.value = 50;
@@ -96,6 +97,49 @@ function recalcRachfordRice(exchange, T) {
     let target = [ny0, ny1, nx0, nx1];
     exchange.setTarget(target);
 }
+
+
+
+// var trace1 = {
+//     x: [1, 2, 3, 4],
+//     y: [10, 15, 13, 17],
+//     mode: 'markers',
+//     type: 'scatter'
+//   };
+  
+//   var trace2 = {
+//     x: [2, 3, 4, 5],
+//     y: [16, 5, 11, 9],
+//     mode: 'lines',
+//     type: 'scatter'
+//   };
+  
+//   var trace3 = {
+//     x: [1, 2, 3, 4],
+//     y: [12, 9, 15, 12],
+//     mode: 'lines+markers',
+//     line: {shape: 'spline'},
+//     type: 'scatter',
+//     name: "name"
+//   };
+  
+//   let data = [trace1, trace2, trace3];
+//   let layout = {
+//     title:'y-x plot',
+//     xaxis: {
+//         title: 'x'
+//       },
+//       yaxis: {
+//         title: 'y'
+//       }
+//   };
+  
+
+//   Plotly.newPlot('Plotly', data,layout);s
+
+  let plot = new Plot('Plotly',T , P, components, z)
+  plot.plot_yx_Tslider(0,200,1)
+
 // Move particles
 function moveParticles() {
     particleArray.map(p => p.move());

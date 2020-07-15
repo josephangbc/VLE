@@ -12,7 +12,9 @@
 <!--    <script type="text/javascript" src="Components/Lid.js"></script>-->
     <!--  Use the require.js module loader, and tell it where our main JavaScript file is  -->
 <!--    <script defer type="text/javascript" src="appscripts/main.js"> </script>-->
+    <script defer src='https://cdn.plot.ly/plotly-latest.min.js'></script>
     <script defer type="module" src="appscripts/main.js"> </script>
+    
     <title>VLE</title>
 
 </head>
@@ -28,13 +30,19 @@
         VLE
     </nav>
 
-    <main id="centerDiv">
+    <main>
+        <div class="animation "id = "centerDiv"></div>
+        <div class="plot" id='Plotly'><!-- Plotly chart will be drawn inside this DIV --></div>
     </main>
+    
+
 
     <aside id="aside">
         <div class="slidecontainer">
             <h2>Temperature</h2>
-            <input type="range" min="0" max="100" value="50" class="slider" id="temperature">
+            <input type="range" min="0" max="100" value="50" class="slider" id="Tslider">
+            <h2>Pressure</h2>
+            <input type="range" min="0" max="100" value="50" class="slider" id="Pslider">
         </div>
     </aside>
 

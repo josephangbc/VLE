@@ -102,8 +102,26 @@ nav {
 main {
   grid-area: content;
   width: 100%;
-  background: #F9F5F0;
+  background: #ffccff;
+  display: flex;
 }
+
+.animation {
+  background: #ffff99;
+  width: 50%;
+  height: 100%;
+  text-align: center;
+
+}
+
+.plot {
+  background: #ccffcc;
+  width: 50%;
+  height: 100%;
+  text-align: center;
+}
+
+
 
 aside {
   grid-area: side;
