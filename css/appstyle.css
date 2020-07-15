@@ -103,7 +103,7 @@ main {
   grid-area: content;
   width: 100%;
   background: #ffccff;
-  display: flex;
+  display: flexbox;
 }
 
 .animation {
