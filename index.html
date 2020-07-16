@@ -27,7 +27,17 @@
     </header>
 
     <nav>
-        VLE
+        <!-- Surround the select box within a "custom-select" DIV element.
+        Remember to set the width: -->
+        <div>
+            <h2>Component A</h2>
+            <select id = "compAselect">
+            </select>
+            <br>
+            <h2>Component B</h2>
+            <select id = "compBselect">
+            </select>
+        </div>
     </nav>
 
     <main>
@@ -43,11 +53,13 @@
             <input type="range" min="0" max="100" value="50" class="slider" id="Tslider">
             <h2>Pressure</h2>
             <input type="range" min="0" max="100" value="50" class="slider" id="Pslider">
+            <h2>Composition</h2>
+            <input type ="range" min="0" max="100" value ="50" class="slider" id = "Zslider">
         </div>
     </aside>
 
     <footer>
-        <p> ... footer ... </p>
+        <p> component A is red </p>
     </footer>
 </div>
 

@@ -20,12 +20,13 @@ export default class Plot {
         let R;
         for (let i = Tmin; i<=Tmax; i+= step){
             R =  new RachfordRice(2,i, this.P, this.components, this.z);
+          if (0<=R.v && R.v <= 1){
             y.push(R.y[0]);
             x.push(R.x[0]);
             T.push(i);
+          }
         }
-        console.log(T);
-        var trace = {
+        let trace = {
             x: x,
             y: y,
             text: T,
@@ -37,10 +38,29 @@ export default class Plot {
             name: "",
             showlegend: false,
           };
+        
+          R =  new RachfordRice(2,this.T, this.P, this.components, this.z)
+          let x_current = R.x[0];
+          let y_current = R.y[0];
+          console.log(R.v);
+          console.log(x_current,y_current);
+          let current = {
+            x: [x_current],
+            y: [y_current],
+            mode: 'markers',
+            type: 'scatter',
+            name: "",
+            showlegend: false,
+            marker: { size: 12 },
+            text: [this.T],
+            hovertemplate: '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}'
+            +'<br><i>x</i>: %{x:.3r}',
+          }
+
           
-          let data = [trace];
+          let data = [trace,current];
           let layout = {
-            title:'y-x plot (P = '+ this.P+ ' kPa)',
+            title:'y-x plot (P = '+ this.P+ ' kPa), (z = '+ this.z[0]+' )',
             xaxis: {
                 title: 'x',
                 range: [0,1],
@@ -49,12 +69,16 @@ export default class Plot {
               yaxis: {
                 title: 'y',
                 range: [0,1],
+                hoverformat: ".3r"
               },
               hovermode: 'closest',
           };
           
         
           Plotly.newPlot(this.divID, data,layout);
+          
+          // current result
+
 
 
     }
@@ -105,5 +129,7 @@ export default class Plot {
 
 
         }
+
+
 }
 

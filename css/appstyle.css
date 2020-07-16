@@ -83,7 +83,7 @@ header {
 }
 
 nav, aside {
-  background: #F2EAD3;
+  background: #0f5066;
 }
 
 nav, aside, main {
@@ -103,11 +103,11 @@ main {
   grid-area: content;
   width: 100%;
   background: #ffccff;
-  display: flexbox;
+  display: flex;
 }
 
 .animation {
-  background: #ffff99;
+  background: #d1d1a1;
   width: 40%;
   height: 100%;
   text-align: center;
@@ -115,7 +115,7 @@ main {
 }
 
 .plot {
-  background: #ccffcc;
+  background: #a8dda8;
   width: 60%;
   height: 100%;
   text-align: center;
@@ -149,3 +149,21 @@ footer {
     margin: 0;
   }
 }
+
+/* Navbar container */
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+  font-family: Arial;
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+

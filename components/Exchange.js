@@ -8,6 +8,9 @@ export default class Exchange {
     setTarget(target) {
         this.target = target
     }
+    setRecord(record){
+        this.record = record;
+    }
 
     checkShift(comType, phaseType) {
         console.log(this.target + " " + this.record);
