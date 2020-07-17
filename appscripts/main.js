@@ -231,9 +231,8 @@ function moveParticles() {
     particleArray.map(p => p.move());
 }
 let animationLoop = setInterval(moveParticles, 40);
-clearInterval(animationLoop);
 
-let AnimationIsRunning = false;
+let AnimationIsRunning = true;
 function animationStartButtonFunc(){
     if (!AnimationIsRunning){
         animationLoop = setInterval(moveParticles,40);
