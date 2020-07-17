@@ -44,12 +44,54 @@ export default class RachfordRice {
         this.P = P;
         this.components = components;
         this.z = z;
+        this.calculate();
+        // this.T_degR = this.T * 9/5 + 491.67;
+        // this.P_psia = this.P * 0.145;
+        // this.K = this.calcK();
+        // this.v = this.newtonMethod();
+        // this.x = this.calcX();
+        // this.y = this.calcY(this.x);
+    }
+
+    calculate(){
+        // after setting parameters
+        // T, P, components, z, n=2
         this.T_degR = this.T * 9/5 + 491.67;
         this.P_psia = this.P * 0.145;
         this.K = this.calcK();
         this.v = this.newtonMethod();
         this.x = this.calcX();
         this.y = this.calcY(this.x);
+    }
+
+    setT(T){
+        this.T = T;
+        this.calculate();
+    }
+
+    setP(P){
+        this.P = P;
+        this.calculate();
+    }
+
+    setCompA(compA){
+        this.components[0] = compA;
+        this.calculate();
+    }
+
+    setCompB(compB){
+        this.components[1] = compB;
+        this.calculate();
+    }
+
+    setComponents(components){
+        this.components = components;
+        this.calculate();
+    }
+
+    setZ(z){
+        this.z = z;
+        this.calculate();
     }
 
     calcK() {

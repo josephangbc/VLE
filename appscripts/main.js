@@ -9,11 +9,14 @@ import Plot from "/components/Plot.js"
 // Preselected components A and B
 let preselectA = "n-Pentane";
 let preselectB = "n-Heptane";
+const PlotOptions = ["y-x (const P,z)","y-x (const T,z)",
+"T-x-y (const P)"]
+let preselectPlot = PlotOptions[0];
 
 // Slider range and starting T,P and zA
 let Tmin = 0; let T = 50; let Tmax = 200;
 let Pmin = 1; let P = 101;  let Pmax = 1000;
-let zA = 0.5;
+let Zmin = 0; let zA = 0.5; let Zmax = 1;
 
 // Visible volume fraction of vapor to total container
 let volVap = 0.8;
@@ -26,10 +29,24 @@ const lidH = 0;
 const particleRadius = 10;
 let numParticles = 20;
 
-// Plot Limits
+// Plot params -- input for the Plot object and can be modified from this javascript file
+const plotParams = {
+    divID: "Plotly",
+    Tmin: Tmin,
+    Tmax: Tmax,
+    Pmin: Pmin,
+    Pmax: Pmax,
+    numPoints: 100,
+}
+let plotDivId = "Plotly"
 let Tmin_plot = Tmin;
 let Tmax_plot = Tmax;
+let Pmin_plot = Pmin;
+let Pmax_plot = Pmax;
+let numPoints = 100; // number of points to generate and plot
 let step = 1;
+let stepT = 1;
+let stepP = 1;
 
 
 // Add others here so that we don't have to modify in between code
@@ -67,6 +84,16 @@ for (let i = 0; i < RachfordRice.chemicals.length; i++){
     optArrayB.push(optB);
 }
 
+// Listing choices of options
+let optArrayPlot = [];
+for (let i = 0; i < PlotOptions.length; i++){
+    let opt = document.createElement("option");
+    opt.innerHTML = PlotOptions[i];
+    opt.value = i;
+    plotSelect.appendChild(opt);
+    optArrayPlot.push(opt);
+}
+
 // Preselecting components
 for (let opt of optArrayA){
     if (opt.innerHTML == preselectA){
@@ -79,14 +106,14 @@ for (let opt of optArrayB){
     }
 }
 
-// Setting the slider range
-Tslider.min = Tmin;   Tslider.max = Tmax;
-Pslider.min = Pmin; Pslider.max = Pmax;
+// // Setting the slider range
+// Tslider.min = Tmin;   Tslider.max = Tmax;
+// Pslider.min = Pmin; Pslider.max = Pmax;
 
 // Setting the slider values
-Tslider.value = T;
-Pslider.value =  P;
-Zslider.value = 100*zA;
+Tslider.value = (T-Tmin)/(Tmax-Tmin)*100;
+Pslider.value =  (P-Pmin)/(Pmax-Pmin)*100;
+Zslider.value = (zA-Zmin)/(Zmax-Zmin)*100;
 
 
 let compA = optArrayA.filter(x=>x.selected)[0].innerHTML;
@@ -140,49 +167,50 @@ for (let i = 0; i < numParticles; i++) {
 }
 
 Tslider.addEventListener("input",function(ev){
-    T = Tslider.value
-    recalcRachfordRice();
-    plot.T = T;
-    plot.plot_yx_Tslider(Tmin,Tmax,1);
+    T = Tslider.value/100*(Tmax-Tmin)+Tmin;
+    R.setT(T);
+    recalibrateExchangeTarget();
+    generatePlot();
 });
 
 Pslider.addEventListener("input", function(ev){
-    P = Pslider.value;
-    recalcRachfordRice();
-    plot.P = P;
-    plot.plot_yx_Tslider(Tmin,Tmax,1)
+    P = Pslider.value/100*(Pmax-Pmin)+Pmin;
+    R.setP(P);
+    recalibrateExchangeTarget();
+    generatePlot();
 });
 
 Zslider.addEventListener("input", function(ev){
-    zA = Zslider.value/100;
+    zA = Zslider.value/100*(Zmax-Zmin)+Zmin;
     z = [zA,1-zA];
-    recalcRachfordRice();
+    R.setZ(z);
+    recalibrateExchangeTarget();
     recalibrateExchangeRecord();
-    plot.z = z;
-    plot.plot_yx_Tslider(Tmin,Tmax,1);
+    generatePlot();
 
 });
 
 compAselect.addEventListener("change", function(ev){
     let compA = optArrayA.filter(x=>x.selected)[0].innerHTML;
-    let compB = optArrayB.filter(x=>x.selected)[0].innerHTML;
-    let components = [compA,compB];
-    recalcRachfordRice();
-    plot.components = components;
-    plot.plot_yx_Tslider(Tmin,Tmax,1);
+    R.setCompA(compA);
+    recalibrateExchangeTarget();
+    recalibrateExchangeRecord();
+    generatePlot();
 })
 
 compBselect.addEventListener("change", function(ev){
-    let compA = optArrayA.filter(x=>x.selected)[0].innerHTML;
     let compB = optArrayB.filter(x=>x.selected)[0].innerHTML;
-    let components = [compA,compB];
-    recalcRachfordRice();
-    plot.components = components;
-    plot.plot_yx_Tslider(Tmin,Tmax,1);
+    R.setCompB(compA);
+    recalibrateExchangeTarget();
+    recalibrateExchangeRecord();
+    generatePlot();
 })
 
-function recalcRachfordRice() {
-    R = new RachfordRice(2,T , P, components, z)
+plotSelect.addEventListener("change", function(ev){
+    generatePlot();
+})
+
+function recalibrateExchangeTarget() {
     y0 = R.y[0];
     x0 = R.x[0];
     vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
@@ -223,8 +251,20 @@ function recalibrateExchangeRecord(){
 }
 
 // Plot
-let plot = new Plot('Plotly',T , P, components, z)
-plot.plot_yx_Tslider(Tmin_plot,Tmax_plot,step)
+let plot = new Plot(plotParams,R)
+generatePlot();
+
+function generatePlot(){
+    let optVal = optArrayPlot.filter(x=>x.selected)[0].value; // selected plot option
+    if (optVal == 0){
+        plot.plot_yx_constPz();
+    } else if (optVal == 1){
+        plot.plot_yx_constTz(Pmin_plot,Pmax_plot,step);
+    } else if (optVal == 2){
+        plot.plot_Txy_constP(step);
+    }
+
+}
   
 // Move particles
 function moveParticles() {

@@ -1,25 +1,23 @@
 import RachfordRice from "/components/RachfordRice.js"
 
 export default class Plot {
-    constructor(divID,T,P,components,z){
-        this.T = T;
-        this.P = P;
-        this.components = components;
-        this.z = z;
-        this.divID = divID;
-        this.Tmin = 0;
-        this.Tmax = 0;
+    constructor(params,R){
+      this.params = params; // Plotting parameters
+      this.R = R; // Rachford Rice current solution
     }
+    plot_yx_constPz(){
+        // For constant P and z
 
-    plot_yx_Tslider(Tmin,Tmax,step){
-        // For constant P 
+        // Arrays storing scatter data
         let y = [];
         let x = [];
         let T = [];
-        // let R =  new RachfordRice(2,Tmin, this.P, this.components, this.z);
-        let R;
-        for (let i = Tmin; i<=Tmax; i+= step){
-            R =  new RachfordRice(2,i, this.P, this.components, this.z);
+
+        let R; // Temporary Rachford Rice solutions
+        let Tmin = this.params.Tmin; let Tmax = this.params.Tmax;
+        let step = (this.params.Tmax-this.params.Tmin)/this.params.numPoints;
+        for (let i = Tmin; i<Tmax; i+= step){
+            R =  new RachfordRice(2,i, this.R.P, this.R.components, this.R.z);
           if (0<=R.v && R.v <= 1){
             y.push(R.y[0]);
             x.push(R.x[0]);
@@ -38,21 +36,16 @@ export default class Plot {
             name: "",
             showlegend: false,
           };
-        
-          R =  new RachfordRice(2,this.T, this.P, this.components, this.z)
-          let x_current = R.x[0];
-          let y_current = R.y[0];
-          console.log(R.v);
-          console.log(x_current,y_current);
+      
           let current = {
-            x: [x_current],
-            y: [y_current],
+            x: [this.R.x[0]],
+            y: [this.R.y[0]],
             mode: 'markers',
             type: 'scatter',
             name: "",
             showlegend: false,
             marker: { size: 12 },
-            text: [this.T],
+            text: [this.R.T],
             hovertemplate: '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}'
             +'<br><i>x</i>: %{x:.3r}',
           }
@@ -60,7 +53,8 @@ export default class Plot {
           
           let data = [trace,current];
           let layout = {
-            title:'y-x plot (P = '+ this.P+ ' kPa), (z = '+ this.z[0]+' )',
+            title:'y-x plot (P = '+ Math.round(this.R.P*100)/100 + ' kPa), (z = '+ 
+            Math.round(this.R.z[0]*1000)/1000 +' )',
             xaxis: {
                 title: 'x',
                 range: [0,1],
@@ -75,61 +69,73 @@ export default class Plot {
           };
           
         
-          Plotly.newPlot(this.divID, data,layout);
-          
-          // current result
-
-
-
+          Plotly.newPlot(this.params.divID, data,layout);
     }
 
-    plot_yx_Pslider(Pmin,Pmax,step){
-        let y = [];
-        let x = [];
-        let P = [];
-        // let R =  new RachfordRice(2,Tmin, this.P, this.components, this.z);
-        let R;
-        for (let i = Pmin; i<=Pmax; i+= step){
-            R =  new RachfordRice(2,i, this.P, this.components, this.z);
-            y.push(R.y[0]);
-            x.push(R.x[0]);
-            T.push(i);
+    plot_yx_constTz(){
+      // For constant T and z
+
+      // Arrays storing scatter data
+      let y = [];
+      let x = [];
+      let P = [];
+
+      let R; // Temporary Rachford Rice solutions
+      let Pmin = this.params.Pmin; let Pmax = this.params.Pmax;
+      let step = (this.params.Pmax-this.params.Pmin)/this.params.numPoints;
+      for (let i = Pmin; i<Pmax; i+= step){
+          R =  new RachfordRice(2,this.R.T, i, this.R.components, this.R.z);
+        if (0<=R.v && R.v <= 1){
+          y.push(R.y[0]);
+          x.push(R.x[0]);
+          P.push(i);
         }
-        console.log(T);
-        var trace = {
-            x: x,
-            y: y,
-            text: P,
-            hovertemplate: '<i>T</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}'
-            +'<br><i>x</i>: %{x:.3r}',
-            mode: 'lines',
-            line: {shape: 'spline'},
-            type: 'scatter',
-            name: "",
-            showlegend: false,
-          };
-          
-          let data = [trace];
-          let layout = {
-            title:'y-x plot (T = '+ this.T+ ' C)',
-            xaxis: {
-                title: 'x',
-                range: [0,1],
-                hoverformat: ".3r",
-              },
-              yaxis: {
-                title: 'y',
-                range: [0,1],
-              },
-              hovermode: 'closest',
-          };
-          
+      }
+      let trace = {
+          x: x,
+          y: y,
+          text: P,
+          hovertemplate: '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}'
+          +'<br><i>x</i>: %{x:.3r}',
+          mode: 'lines',
+          line: {shape: 'spline'},
+          type: 'scatter',
+          name: "",
+          showlegend: false,
+        };
+      
+        let current = {
+          x: [this.R.x[0]],
+          y: [this.R.y[0]],
+          mode: 'markers',
+          type: 'scatter',
+          name: "",
+          showlegend: false,
+          marker: { size: 12 },
+          text: [this.R.P],
+          hovertemplate: '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}'
+          +'<br><i>x</i>: %{x:.3r}',
+        }
+
         
-          Plotly.newPlot(this.divID, data,layout);
-
-
-        }
-
-
+        let data = [trace,current];
+        let layout = {
+          title:'y-x plot (T = '+ Math.round(this.R.T*100)/100 + ' kPa), (z = '+ 
+          Math.round(this.R.z[0]*1000)/1000 +' )',
+          xaxis: {
+              title: 'x',
+              range: [0,1],
+              hoverformat: ".3r",
+            },
+            yaxis: {
+              title: 'y',
+              range: [0,1],
+              hoverformat: ".3r"
+            },
+            hovermode: 'closest',
+        };
+        
+      
+        Plotly.newPlot(this.params.divID, data,layout);
+  }
 }
-
