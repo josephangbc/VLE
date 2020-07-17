@@ -10,7 +10,7 @@ import Plot from "/components/Plot.js"
 let preselectA = "n-Pentane";
 let preselectB = "n-Heptane";
 const PlotOptions = ["y-x (const P,z)","y-x (const T,z)",
-"y-x (const P)","y-x (const T)", "T-x-y (const P,z)"]
+"y-x (const P)","y-x (const T)", "T-x-y (const P,z)","T-x-y (const P)"]
 let preselectPlot = PlotOptions[0];
 
 // Slider range and starting T,P and zA
@@ -267,6 +267,8 @@ function generatePlot(){
         plot.plot_yx_constT();
     } else if (optVal == 4){
         plot.plot_Txy_constPz();
+    } else if (optVal == 5){
+        plot.plot_Txy_constP();
     }
 
 }

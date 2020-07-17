@@ -79,59 +79,71 @@ export default class Plot {
       let traceX = {
         x: x,
         y: T,
-        hovertemplate: '<i>x</i>: %{x:.3r}'+' <br><i>T</i>: %{y:.3r} C',
+        text: T,
+        hovertemplate: '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}'
+        +'<br><i>x</i>: %{x:.3r}',
         mode: 'scatter',
         line: {shape: 'spline'},
         type: 'scatter',
         name: "",
         showlegend: false,
       };
-      // let traceY = {
-      //   x: y,
-      //   y: T,
-      //   hovertemplate: '<i>y</i>: %{x:.3r}'+' <br><i>T</i>: %{y:.3r} C',
-      //   mode: 'scatter',
-      //   line: {shape: 'spline'},
-      //   type: 'scatter',
-      //   name: "",
-      //   showlegend: false,
-      // };
+      let traceY = {
+        x: y,
+        y: T,
+        text: T,
+        hovertemplate: '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}'
+        +'<br><i>x</i>: %{x:.3r}',
+        mode: 'scatter',
+        line: {shape: 'spline'},
+        type: 'scatter',
+        name: "",
+        showlegend: false,
+      };
   
       let current = {
-        x: [this.R.x[0], this.R.y[0]],
-        y: [this.R.T, this.R.T],
+        x: [this.R.x[0],this.R.y[0]],
+        y: [this.R.T,this.R.T],
         mode: 'markers',
         type: 'scatter',
         name: "",
         showlegend: false,
         marker: { size: 12 },
-        text: [this.R.T],
-        hovertemplate: '<i>x/y</i>: %{x:.3r}'+' <br><i>T</i>: %{y:.3r} C',
+        text: [this.R.T,this.R.T],
+        hovertemplate: '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}'
+        +'<br><i>x</i>: %{x:.3r}',
       }
 
 
       
-      let data = [traceX,current];
+      let data = [traceX, traceY, current];
       let layout = {
-        title:'y-x plot (P = '+ Math.round(this.R.P*100)/100 + ' kPa), (z = '+ 
+        title:'T-x-y plot (P = '+ Math.round(this.R.P*100)/100 + ' kPa), (z = '+ 
         Math.round(this.R.z[0]*1000)/1000 +' )',
         xaxis: {
-            title: 'x',
+            title: 'x,y',
             range: [0,1],
             hoverformat: ".3r",
           },
           yaxis: {
-            title: 'y',
-            range: [0,1],
+            title: 'T',
+            range: [this.params.Tmin, this.params.Tmax],
             hoverformat: ".3r"
           },
           hovermode: 'closest',
       };
       Plotly.newPlot(this.params.divID, data,layout);
-
-
-
     }
+
+    plot_Txy_constP(){
+      let zA_array = [];
+      for (let i = 0; i <= 1; i+= 0.01){
+        zA_array.push(i);
+      }
+      this.plot_Txy_constPz(zA_array)
+    }
+
+
 
     generate_yx_constP_data(zA_array){
       // Generates x,y,T values for a bunch of zA data at constant P
