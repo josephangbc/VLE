@@ -10,7 +10,8 @@ import Plot from "/components/Plot.js"
 let preselectA = "n-Pentane";
 let preselectB = "n-Heptane";
 const PlotOptions = ["y-x (const P,z)","y-x (const T,z)",
-"y-x (const P)","y-x (const T)", "T-x-y (const P,z)","T-x-y (const P)"]
+"y-x (const P)","y-x (const T)", "T-x-y (const P,z)","T-x-y (const P)",
+"P-x-y (const T,z)", "P-x-y (const T)"]
 let preselectPlot = PlotOptions[0];
 
 // Slider range and starting T,P and zA
@@ -38,15 +39,6 @@ const plotParams = {
     Pmax: Pmax,
     numPoints: 100,
 }
-let plotDivId = "Plotly"
-let Tmin_plot = Tmin;
-let Tmax_plot = Tmax;
-let Pmin_plot = Pmin;
-let Pmax_plot = Pmax;
-let numPoints = 100; // number of points to generate and plot
-let step = 1;
-let stepT = 1;
-let stepP = 1;
 
 
 // Add others here so that we don't have to modify in between code
@@ -269,6 +261,10 @@ function generatePlot(){
         plot.plot_Txy_constPz();
     } else if (optVal == 5){
         plot.plot_Txy_constP();
+    } else if (optVal == 6){
+        plot.plot_Pxy_constTz();
+    } else if (optVal == 7){
+        plot.plot_Pxy_constT();
     }
 
 }

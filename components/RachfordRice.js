@@ -161,5 +161,4 @@ export default class RachfordRice {
         }
         return result;
     }
-
 }
