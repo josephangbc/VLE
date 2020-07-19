@@ -1,17 +1,18 @@
 import RachfordRice from "/components/RachfordRice.js"
 
 export default class Plot {
-  constructor(params,R){
+  constructor(params,RR){
     this.params = params; // Plotting parameters
-    this.R = R; // Rachford Rice current solution
+    this.RR = RR; // Rachford Rice current solution
   }
 
   // Constant P Plotting 
-  plot_yx_constPz(zA_arr = [this.R.z[0]]){
+  plot_yx_constPz(zA_arr = [this.RR.z[0]]){
     // For constant P and z
     let points =  this.generate_yx_constP_data(zA_arr); // format (x,y,T,v)
 
     // Arrays storing scatter data
+
     let x = points.map(x=>x[0])
     let y = points.map(x=>x[1])
     let T = points.map(x=>x[2])
@@ -40,17 +41,17 @@ export default class Plot {
     let data = [trace,yxline];
     // Current point on (x,y) graph
     let current_x, current_y, current;
-    let current_points = this.generate_yx_constP_data([this.R.z[0]]);
-    current_points = current_points.sort((a,b)=> ((a[3]>b[3])?1:a[3]==b[3]?0:-1)); // sorted by v
+    let current_points = this.generate_yx_constP_data([this.RR.z[0]]);
+    current_points.sort((a,b)=> ((a[3]>b[3])?1:a[3]==b[3]?0:-1)); // sorted by v
     if (current_points.length>0){
       let bbp = current_points[0]; 
       let dp = current_points[current_points.length-1];
-      if (this.R.v > 1){
+      if (this.RR.v > 1){
         current_x = dp[0]; current_y = dp[1] // superheated vapor -> marker at dp
-      } else if (this.R.v < 0){
+      } else if (this.RR.v < 0){
         current_x = bbp[0]; current_y =  bbp[1]; // subcooled liquid -> marker at bbp
       } else {
-        current_x = this.R.x[0]; current_y = this.R.y[0]; // binary mixture -> marker at calculated value
+        current_x = this.RR.x[0]; current_y = this.RR.y[0]; // binary mixture -> marker at calculated value
       } 
       current = {
         x: [current_x],
@@ -60,7 +61,7 @@ export default class Plot {
         name: "current",
         showlegend: false,
         marker: { size: 12 },
-        text: [this.R.T],
+        text: [this.RR.T],
         hovertemplate: '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}'+'<br><i>x</i>: %{x:.3r}',
       }
       data.push(current);
@@ -68,9 +69,9 @@ export default class Plot {
 
     let title;
     if (zA_arr.length > 1){
-      title = 'y-x plot (P = '+ Math.round(this.R.P*100)/100 + ' kPa)' // multiple zA values
+      title = 'y-x plot (P = '+ Math.round(this.RR.P*100)/100 + ' kPa)' // multiple zA values
     } else {
-      title = 'y-x plot (P = '+ Math.round(this.R.P*100)/100 + ' kPa), (z = '+ Math.round(this.R.z[0]*1000)/1000 +' )'
+      title = 'y-x plot (P = '+ Math.round(this.RR.P*100)/100 + ' kPa), (z = '+ Math.round(this.RR.z[0]*1000)/1000 +' )'
     }
       
     let layout = {
@@ -108,7 +109,7 @@ export default class Plot {
     this.plot_yx_constPz(zA_arr)
   }
 
-  plot_Txy_constPz(zA_arr = [this.R.z[0]]){
+  plot_Txy_constPz(zA_arr = [this.RR.z[0]]){
     // Plots (x,T) and (y,T) for const P,z
 
     let points =  this.generate_yx_constP_data(zA_arr); // format (x,y,T,v)
@@ -141,19 +142,19 @@ export default class Plot {
 
 
     let x_markers, T_markers, text_markers, mode;
-    if (0 <= this.R.v && this.R.v <= 1){
-      if (this.R.x[0] < this.R.y[0]){
-        x_markers = [this.R.x[0],this.R.z[0],this.R.y[0]];
+    if (0 <= this.RR.v && this.RR.v <= 1){
+      if (this.RR.x[0] < this.RR.y[0]){
+        x_markers = [this.RR.x[0],this.RR.z[0],this.RR.y[0]];
         text_markers = ["x","z","y"]
       } else {
-        x_markers = [this.R.y[0],this.R.z[0],this.R.x[0]];
+        x_markers = [this.RR.y[0],this.RR.z[0],this.RR.x[0]];
         text_markers = ["y","z","x"]
       }
-      T_markers = [this.R.T,this.R.T,this.R.T];
+      T_markers = [this.RR.T,this.RR.T,this.RR.T];
       mode = "scatter"
     } else {
-      x_markers = [this.R.z[0]];
-      T_markers = [this.R.T];
+      x_markers = [this.RR.z[0]];
+      T_markers = [this.RR.T];
       text_markers = ["z"]
       mode = "markers";
     }
@@ -172,9 +173,9 @@ export default class Plot {
 
     let data = [traceX, traceY, current];
 
-    let title = 'y-x plot (P = '+ Math.round(this.R.P*100)/100 + ' kPa), (z = '+ Math.round(this.R.z[0]*1000)/1000 +' )'
+    let title = 'y-x plot (P = '+ Math.round(this.RR.P*100)/100 + ' kPa), (z = '+ Math.round(this.RR.z[0]*1000)/1000 +' )'
     if (zA_arr.length > 1){
-      title = 'y-x plot (P = '+ Math.round(this.R.P*100)/100 + ' kPa)' // multiple zA values
+      title = 'y-x plot (P = '+ Math.round(this.RR.P*100)/100 + ' kPa)' // multiple zA values
     }
     let layout = {
       title: title,
@@ -215,27 +216,26 @@ export default class Plot {
     // Then combine them together by sorting with x values
     let points = [];
 
-    let R; // Temporary Rachford Rice solutions
+    let RR; // Temporary Rachford Rice solutions
     let Tmin = this.params.Tmin; let Tmax = this.params.Tmax;
     let step = (Tmax-Tmin)/this.params.numPoints;
-    R = new RachfordRice(2,Tmin,this.R.P,this.R.components,[zA_arr[0],1-zA_arr[0]])
+    RR = new RachfordRice(2,Tmin,this.RR.P,this.RR.components,[zA_arr[0],1-zA_arr[0]])
     for (let zA of zA_arr){
-      R.setZ([zA,1-zA]);
+      RR.setZ([zA,1-zA]);
       for (let i = Tmin; i<=Tmax; i+= step){
-        R.setT(i);
-        if (0<=R.v && R.v <= 1){
-          points.push([R.x[0],R.y[0],i,R.v])
+        RR.setT(i);
+        if (0<=RR.v && RR.v <= 1){
+          points.push([RR.x[0],RR.y[0],i,RR.v])
         }
       }
     }
     points = points.sort((a,b)=> ((a[0]>b[0])?1:a[3]==b[3]?0:-1)); // sorted by x
-    let data = {};
     return points;
   }
 
 
   // Constant T Plotting 
-  plot_yx_constTz(zA_arr = [this.R.z[0]]){
+  plot_yx_constTz(zA_arr = [this.RR.z[0]]){
     // For constant P and z
     let points =  this.generate_yx_constT_data(zA_arr); // format (x,y,T,v)
 
@@ -267,17 +267,17 @@ export default class Plot {
     let data = [trace,yxline];
     // Current point on (x,y) graph
     let current_x, current_y, current;
-    let current_points = this.generate_yx_constT_data([this.R.z[0]]);
+    let current_points = this.generate_yx_constT_data([this.RR.z[0]]);
     current_points = current_points.sort((a,b)=> ((a[3]>b[3])?1:a[3]==b[3]?0:-1)); // sorted by v
     if (current_points.length>0){
       let bbp = current_points[0]; 
       let dp = current_points[current_points.length-1];
-      if (this.R.v > 1){
+      if (this.RR.v > 1){
         current_x = dp[0]; current_y = dp[1] // superheated vapor -> marker at dp
-      } else if (this.R.v < 0){
+      } else if (this.RR.v < 0){
         current_x = bbp[0]; current_y =  bbp[1]; // subcooled liquid -> marker at bbp
       } else {
-        current_x = this.R.x[0]; current_y = this.R.y[0]; // binary mixture -> marker at calculated value
+        current_x = this.RR.x[0]; current_y = this.RR.y[0]; // binary mixture -> marker at calculated value
       } 
       // current point marker
       current = {
@@ -288,7 +288,7 @@ export default class Plot {
         name: "current",
         showlegend: false,
         marker: { size: 12 },
-        text: [this.R.P],
+        text: [this.RR.P],
         hovertemplate: '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}'+'<br><i>x</i>: %{x:.3r}',
       }
       data.push(current);
@@ -297,9 +297,9 @@ export default class Plot {
 
     let title;
     if (zA_arr.length > 1){
-      title = 'y-x plot (T = '+ Math.round(this.R.T*100)/100 + ' C)' // multiple zA values
+      title = 'y-x plot (T = '+ Math.round(this.RR.T*100)/100 + ' C)' // multiple zA values
     } else {
-      title = 'y-x plot (T = '+ Math.round(this.R.T*100)/100 + ' C), (z = '+ Math.round(this.R.z[0]*1000)/1000 +' )'
+      title = 'y-x plot (T = '+ Math.round(this.RR.T*100)/100 + ' C), (z = '+ Math.round(this.RR.z[0]*1000)/1000 +' )'
     }
       
     let layout = {
@@ -337,7 +337,7 @@ export default class Plot {
     this.plot_yx_constTz(zA_arr)
   }
 
-  plot_Pxy_constTz(zA_arr = [this.R.z[0]]){
+  plot_Pxy_constTz(zA_arr = [this.RR.z[0]]){
     // Plots (x,P) and (y,P) for const T,z
 
     let points =  this.generate_yx_constT_data(zA_arr); // format (x,y,T,v)
@@ -370,19 +370,19 @@ export default class Plot {
 
 
     let x_markers, P_markers, text_markers, mode;
-    if (0 <= this.R.v && this.R.v <= 1){
-      if (this.R.x[0] < this.R.y[0]){
-        x_markers = [this.R.x[0],this.R.z[0],this.R.y[0]];
+    if (0 <= this.RR.v && this.RR.v <= 1){
+      if (this.RR.x[0] < this.RR.y[0]){
+        x_markers = [this.RR.x[0],this.RR.z[0],this.RR.y[0]];
         text_markers = ["x","z","y"]
       } else {
-        x_markers = [this.R.y[0],this.R.z[0],this.R.x[0]];
+        x_markers = [this.RR.y[0],this.RR.z[0],this.RR.x[0]];
         text_markers = ["y","z","x"]
       }
-      P_markers = [this.R.P,this.R.P,this.R.P];
+      P_markers = [this.RR.P,this.RR.P,this.RR.P];
       mode = "scatter"
     } else {
-      x_markers = [this.R.z[0]];
-      P_markers = [this.R.P];
+      x_markers = [this.RR.z[0]];
+      P_markers = [this.RR.P];
       text_markers = ["z"]
       mode = "markers";
     }
@@ -401,9 +401,9 @@ export default class Plot {
 
     let data = [traceX, traceY, current];
 
-    let title = 'P-x-y plot (T = '+ Math.round(this.R.P*100)/100 + ' C), (z = '+ Math.round(this.R.z[0]*1000)/1000 +' )'
+    let title = 'P-x-y plot (T = '+ Math.round(this.RR.T*100)/100 + ' C), (z = '+ Math.round(this.RR.z[0]*1000)/1000 +' )'
     if (zA_arr.length > 1){
-      title = 'P-x-y plot (T = '+ Math.round(this.R.P*100)/100 + ' C)' // multiple zA values
+      title = 'P-x-y plot (T = '+ Math.round(this.RR.T*100)/100 + ' C)' // multiple zA values
     }
     let layout = {
       title: title,
@@ -444,16 +444,16 @@ export default class Plot {
     // Then combine them together by sorting with x values
     let points = [];
 
-    let R; // Temporary Rachford Rice solutions
+    let RR; // Temporary Rachford Rice solutions
     let Pmin = this.params.Pmin; let Pmax = this.params.Pmax;
     let step = (Pmax-Pmin)/this.params.numPoints;
-    R = new RachfordRice(2,this.R.T,Pmin,this.R.components,[zA_arr[0],1-zA_arr[0]])
+    RR = new RachfordRice(2,this.RR.T,Pmin,this.RR.components,[zA_arr[0],1-zA_arr[0]])
     for (let zA of zA_arr){
-      R.setZ([zA,1-zA]);
+      RR.setZ([zA,1-zA]);
       for (let i = Pmin; i<=Pmax; i+= step){
-        R.setP(i);
-        if (0<=R.v && R.v <= 1){
-          points.push([R.x[0],R.y[0],i,R.v])
+        RR.setP(i);
+        if (0<=RR.v && RR.v <= 1){
+          points.push([RR.x[0],RR.y[0],i,RR.v])
         }
       }
     }

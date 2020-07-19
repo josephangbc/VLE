@@ -12,7 +12,6 @@ let preselectB = "n-Heptane";
 const PlotOptions = ["y-x (const P,z)","y-x (const T,z)",
 "y-x (const P)","y-x (const T)", "T-x-y (const P,z)","T-x-y (const P)",
 "P-x-y (const T,z)", "P-x-y (const T)"]
-let preselectPlot = PlotOptions[0];
 
 // Slider range and starting T,P and zA
 let Tmin = 0; let T = 50; let Tmax = 200;
@@ -28,7 +27,7 @@ let padding = 10;
 // 
 const lidH = 0;
 const particleRadius = 10;
-let numParticles = 20;
+let numParticles = 100;
 
 // Plot params -- input for the Plot object and can be modified from this javascript file
 const plotParams = {
@@ -162,7 +161,7 @@ Tslider.addEventListener("input",function(ev){
     T = Tslider.value/100*(Tmax-Tmin)+Tmin;
     R.setT(T);
     recalibrateExchangeTarget();
-    generatePlot();
+    generatePlot()
 });
 
 Pslider.addEventListener("input", function(ev){
@@ -271,7 +270,7 @@ function generatePlot(){
   
 // Move particles
 function moveParticles() {
-    particleArray.map(p => p.move());
+    particleArray.forEach(p => p.move());
 }
 let animationLoop = setInterval(moveParticles, 40);
 
