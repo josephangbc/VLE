@@ -9,9 +9,8 @@ import Plot from "/components/Plot.js"
 // Preselected components A and B
 let preselectA = "n-Pentane";
 let preselectB = "n-Heptane";
-const PlotOptions = ["y-x (const P,z)","y-x (const T,z)",
-"y-x (const P)","y-x (const T)", "T-x-y (const P,z)","T-x-y (const P)",
-"P-x-y (const T,z)", "P-x-y (const T)"]
+const PlotOptions = ["y-x (const P)","y-x (const T)",
+"T-x-y","P-x-y"]
 
 // Slider range and starting T,P and zA
 let Tmin = 0; let T = 50; let Tmax = 200;
@@ -206,6 +205,8 @@ function recalibrateExchangeTarget() {
     y0 = R.y[0];
     x0 = R.x[0];
     vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
+    console.log(R.v);
+    console.log(vF)
     n0 = Math.round(R.z[0] * numParticles);
     n1 = numParticles - n0;
     nVap = Math.round(vF * numParticles);
@@ -249,21 +250,13 @@ generatePlot();
 function generatePlot(){
     let optVal = optArrayPlot.filter(x=>x.selected)[0].value; // selected plot option
     if (optVal == 0){
-        plot.plot_yx_constPz();
-    } else if (optVal == 1){
-        plot.plot_yx_constTz();
-    } else if (optVal == 2){
         plot.plot_yx_constP();
-    } else if (optVal == 3){
+    } else if (optVal == 1){
         plot.plot_yx_constT();
-    } else if (optVal == 4){
-        plot.plot_Txy_constPz();
-    } else if (optVal == 5){
-        plot.plot_Txy_constP();
-    } else if (optVal == 6){
-        plot.plot_Pxy_constTz();
-    } else if (optVal == 7){
-        plot.plot_Pxy_constT();
+    } else if (optVal == 2){
+        plot.plot_Txy();
+    } else if (optVal == 3){
+        plot.plot_Pxy();
     }
 
 }
@@ -297,5 +290,6 @@ window.addEventListener('resize', function(ev){
     bgRect.attr({"width":foo.clientWidth, "height":foo.clientHeight})
     console.log("setSize .........  pWidth is " + foo.clientWidth + ", and pHeight is " + foo.clientHeight);
 });
+
 
 

@@ -20,11 +20,11 @@ export default class Exchange {
     }
 
     checkShift(comType, phaseType) {
-        if (this.arrayEquals(this.target, this.record) == false){
-            console.log("[" + this.target[0] + ", " + this.record[0] + "] [" + this.target[1] + ", " + this.record[1] + "] [" + this.target[2] + ", " + this.record[2] + "] [" + this.target[3] + ", " + this.record[3] + "]");
-        } else {
-            console.log("Equilibrium at " + this.record);
-        }
+        // if (this.arrayEquals(this.target, this.record) == false){
+        //     console.log("[" + this.target[0] + ", " + this.record[0] + "] [" + this.target[1] + ", " + this.record[1] + "] [" + this.target[2] + ", " + this.record[2] + "] [" + this.target[3] + ", " + this.record[3] + "]");
+        // } else {
+        //     console.log("Equilibrium at " + this.record);
+        // }
         // let shift = [this.target[0] - this.record[0], this.target[1] - this.record[1], this.target[2] - this.record[2], this.target[3] - this.record[3]];
         // console.log(shift);
         if (comType == 0) {
