@@ -62,6 +62,7 @@ export default class RachfordRice {
         this.v = this.newtonMethod();
         this.x = this.calcX();
         this.y = this.calcY(this.x);
+        console.log(this.v);
     }
 
     setT(T){
