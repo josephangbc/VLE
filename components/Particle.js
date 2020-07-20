@@ -40,8 +40,14 @@ export default class Particle {
     }
     move(dt=40) {
         // Update Position
-        this.pos[0] += this.vel[0] * dt/40;
-        this.pos[1] += this.vel[1] * dt/40;
+        let speedFactor;
+        if (this.phaseType == "L"){
+            speedFactor = 2/3;
+        } else {
+            speedFactor = 1;
+        }
+        this.pos[0] += this.vel[0]*speedFactor * dt/40;
+        this.pos[1] += this.vel[1] *speedFactor* dt/40;
         // Check for Wall Collision
         this.correctForWallCollision();
     }
