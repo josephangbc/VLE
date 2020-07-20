@@ -68,7 +68,7 @@ a, a:link    { color: var(--link-color) }
   height: 100vh;
   grid-template-columns: 200px 1fr 200px;
   grid-template-rows: auto 1fr auto;
-  grid-gap: 10px;
+  grid-gap: 5px;
 }
 
 header {
@@ -104,9 +104,10 @@ main {
   width: 100%;
   background: #ffccff;
   display: flex;
+  z-index:-50;
 }
 
-.animation {
+#centerDiv {
   background: #d1d1a1;
   width: 40%;
   height: 100%;
@@ -114,7 +115,7 @@ main {
 
 }
 
-.plot {
+#Plotly {
   background: #a8dda8;
   width: 60%;
   height: 100%;
