@@ -68,7 +68,7 @@ export default class Container {
             }
             // console.log(this.animation);
             
-            console.log(opacity, this.animation.targetOpacity, this.animation.active);
+            // console.log(opacity, this.animation.targetOpacity, this.animation.active);
             if (opacity < 0.0001){
                 this.body.hide();
             } else {
