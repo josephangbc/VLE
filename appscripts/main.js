@@ -46,6 +46,8 @@ const plotParams = {
     Pmin: Pmin,
     Pmax: Pmax,
     numPoints: 100,
+    Width:400,
+    Height:400
 }
 
 

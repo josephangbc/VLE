@@ -109,7 +109,7 @@ main {
 
 #centerDiv {
   background: #d1d1a1;
-  width: 40%;
+  width: 35%;
   height: 100%;
   text-align: center;
 
@@ -117,7 +117,7 @@ main {
 
 #Plotly {
   background: #a8dda8;
-  width: 60%;
+  width: 65%;
   height: 100%;
   text-align: center;
 }
