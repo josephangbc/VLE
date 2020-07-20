@@ -179,6 +179,7 @@ Pslider.addEventListener("input", function(ev){
     P = Pslider.value/100*(Pmax-Pmin)+Pmin;
     R.setP(P);
     recalibrateExchangeTarget();
+    recalibrateVapFrac();
     plot.schedule_replot();
 });
 
@@ -188,6 +189,7 @@ Zslider.addEventListener("input", function(ev){
     R.setZ(z);
     recalibrateExchangeTarget();
     recalibrateExchangeRecord();
+    recalibrateVapFrac();
     plot.schedule_replot();
 });
 
@@ -196,6 +198,7 @@ compAselect.addEventListener("change", function(ev){
     R.setCompA(compA);
     recalibrateExchangeTarget();
     recalibrateExchangeRecord();
+    recalibrateVapFrac();
     plot.schedule_replot();
 })
 
@@ -204,6 +207,7 @@ compBselect.addEventListener("change", function(ev){
     R.setCompB(compA);
     recalibrateExchangeTarget();
     recalibrateExchangeRecord();
+    recalibrateVapFrac();
     plot.schedule_replot();
 })
 
