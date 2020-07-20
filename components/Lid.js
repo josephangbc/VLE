@@ -8,6 +8,7 @@ export default class Lid {
         var box = this.box;
         this.height = 40;
         var height = this.height;
+        // dim = [left,top,right,bot]
         var dim = [box.dim[0], box.dim[1] + lidH, box.dim[2], box.dim[1] + lidH + this.height];  // [x1, y1, x2, y2]
         this.dim = dim;
         let body = paper.rect(this.dim[0], this.dim[1], box.dim[2] - box.dim[0], this.height);
@@ -32,6 +33,7 @@ export default class Lid {
 
         // Particle Diameter
         var particleDiameter = particleRadius*2;
+        this.particleDiameter = particleDiameter;
 
         //  For Lid Movement
         this.clickState = 0;
@@ -81,6 +83,18 @@ export default class Lid {
                 vaporPhase.refresh();
             }
         });
+    }
+
+    setVapFrac(vapFrac){
+        // Translate Vapor Liquid Specifications into dimensions
+        var HeightVap = vapFrac * (this.box.height - this.height);
+        var HeightLiq = (this.box.height - this.height) - HeightVap;
+
+                // Container for Vapor Phase
+        this.vaporPhase.setHeight(HeightVap,this.particleDiameter);
+
+        // Container for Liquid Phase
+        this.liquidPhase.setHeight(HeightLiq,this.particleDiameter);
     }
 
 }

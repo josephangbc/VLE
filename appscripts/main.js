@@ -26,6 +26,9 @@ let Zmin = 0; let zA = 0.5; let Zmax = 1;
 
 // Visible volume fraction of vapor to total container
 let volVap = 0.8;
+let LiquidCompressionFactor = 2; // arbitrary L to V density ratio
+/* all vapor -> vapor fills whole container
+    all liquid -> vapor fills only fraction of container */
 
 // Padding box drawing
 let padding = 10;
@@ -131,7 +134,6 @@ var box = new Box(paper, padding);
 // Create a lid
 var lid = new Lid(paper, box, lidH, particleRadius, numParticles, specs);
 
-
 // Get Containers for Particles
 var vaporPhase = lid.vaporPhase;
 var liquidPhase = lid.liquidPhase;
@@ -145,6 +147,8 @@ let ny0 = Math.round(y0 * nVap);
 let ny1 = nVap - ny0;
 let nx0 = Math.round(x0 * nLiq);
 let nx1 = nLiq - nx0;
+
+recalibrateVapFrac()
 
 // Create Exchange Record
 let ExchangeRecord = new Exchange(ny0, ny1, nx0, nx1);
@@ -167,6 +171,7 @@ Tslider.addEventListener("input",function(ev){
     T = Tslider.value/100*(Tmax-Tmin)+Tmin;
     R.setT(T);
     recalibrateExchangeTarget();
+    recalibrateVapFrac();
     plot.schedule_replot();
 });
 
@@ -247,6 +252,14 @@ function recalibrateExchangeRecord(){
     ExchangeRecord.setRecord([ny0_c,ny1_c,nx0_c,nx1_c]);
 }
 
+function recalibrateVapFrac(){
+    let vapVol = nVap/numParticles;
+    let liqVol = nLiq/numParticles/LiquidCompressionFactor;
+    let totalVol = 1;
+    let vapFrac = 1 - liqVol/totalVol;
+    lid.setVapFrac(vapFrac);
+}
+
 // Plot
 let plot = new Plot(plotParams,R)
 calcPlot();
@@ -279,6 +292,8 @@ function updateAnimation() {
     }
     particleArray.forEach(p => p.move(dt));
     particleArray.forEach(p=>p.render());
+
+    lid.liquidPhase.update(dt);
 }
 
 function updatePlot(){
