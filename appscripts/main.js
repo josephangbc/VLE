@@ -6,6 +6,13 @@ import RachfordRice from "/components/RachfordRice.js";
 import Plot from "/components/Plot.js"
 
 // Free inputs for this javascript file
+const ANIMATION_DELAY = 16.66 // ms
+const PLOT_UPDATE_DELAY = 16.66; //  ms - calculation of plot and redraw if ok
+const PLOT_REFRESH_PERIOD = 40; // ms - redraw plot only after this period  
+/* PLOT_REFRESH_PERIOD Not sure if got any effect */
+
+
+
 // Preselected components A and B
 let preselectA = "n-Pentane";
 let preselectB = "n-Heptane";
@@ -160,14 +167,14 @@ Tslider.addEventListener("input",function(ev){
     T = Tslider.value/100*(Tmax-Tmin)+Tmin;
     R.setT(T);
     recalibrateExchangeTarget();
-    generatePlot()
+    plot.schedule_replot();
 });
 
 Pslider.addEventListener("input", function(ev){
     P = Pslider.value/100*(Pmax-Pmin)+Pmin;
     R.setP(P);
     recalibrateExchangeTarget();
-    generatePlot();
+    plot.schedule_replot();
 });
 
 Zslider.addEventListener("input", function(ev){
@@ -176,8 +183,7 @@ Zslider.addEventListener("input", function(ev){
     R.setZ(z);
     recalibrateExchangeTarget();
     recalibrateExchangeRecord();
-    generatePlot();
-
+    plot.schedule_replot();
 });
 
 compAselect.addEventListener("change", function(ev){
@@ -185,7 +191,7 @@ compAselect.addEventListener("change", function(ev){
     R.setCompA(compA);
     recalibrateExchangeTarget();
     recalibrateExchangeRecord();
-    generatePlot();
+    plot.schedule_replot();
 })
 
 compBselect.addEventListener("change", function(ev){
@@ -193,20 +199,18 @@ compBselect.addEventListener("change", function(ev){
     R.setCompB(compA);
     recalibrateExchangeTarget();
     recalibrateExchangeRecord();
-    generatePlot();
+    plot.schedule_replot();
 })
 
 plotSelect.addEventListener("change", function(ev){
     // changed plot option so generate new plot with the options
-    generatePlot();
+    plot.schedule_replot();
 })
 
 function recalibrateExchangeTarget() {
     y0 = R.y[0];
     x0 = R.x[0];
     vF = Math.min(Math.max(R.v, 0), 1); // Mole Fraction of vapor molecules
-    console.log(R.v);
-    console.log(vF)
     n0 = Math.round(R.z[0] * numParticles);
     n1 = numParticles - n0;
     nVap = Math.round(vF * numParticles);
@@ -245,32 +249,56 @@ function recalibrateExchangeRecord(){
 
 // Plot
 let plot = new Plot(plotParams,R)
-generatePlot();
+calcPlot();
+plot.draw();
 
-function generatePlot(){
+
+
+
+function calcPlot(){
     let optVal = optArrayPlot.filter(x=>x.selected)[0].value; // selected plot option
     if (optVal == 0){
-        plot.plot_yx_constP();
+        plot.calc_yx_constP();
     } else if (optVal == 1){
-        plot.plot_yx_constT();
+        plot.calc_yx_constT();
     } else if (optVal == 2){
-        plot.plot_Txy();
+        plot.calc_Txy();
     } else if (optVal == 3){
-        plot.plot_Pxy();
+        plot.calc_Pxy();
     }
+}
 
-}
-  
+let PREV_TIME = new Date().getTime();
 // Move particles
-function moveParticles() {
-    particleArray.forEach(p => p.move());
+function updateAnimation() {
+    let TIME = new Date().getTime();
+    let dt = TIME - PREV_TIME;
+    PREV_TIME = TIME;
+    if (dt > ANIMATION_DELAY*5){
+        dt = ANIMATION_DELAY; // because user pressed stop animation
+    }
+    particleArray.forEach(p => p.move(dt));
+    particleArray.forEach(p=>p.render());
 }
-let animationLoop = setInterval(moveParticles, 40);
+
+function updatePlot(){
+    if (plot.recalc_scheduled){
+        calcPlot(); 
+    }
+    let newTIME = new Date().getTime();
+    let dt = newTIME - plot.lastDrawTime;
+    if (plot.replot_scheduled && dt >= PLOT_REFRESH_PERIOD){
+        plot.draw();
+    }
+}
+
+let animationLoop = setInterval(updateAnimation, ANIMATION_DELAY);
+let plotLoop = setInterval(updatePlot,PLOT_UPDATE_DELAY);
 
 let AnimationIsRunning = true;
 function animationStartButtonFunc(){
     if (!AnimationIsRunning){
-        animationLoop = setInterval(moveParticles,40);
+        animationLoop = setInterval(updateAnimation,ANIMATION_DELAY);
         AnimationIsRunning = true;
     } else {
         clearInterval(animationLoop);
