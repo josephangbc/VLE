@@ -210,7 +210,7 @@ compAselect.addEventListener("change", function(ev){
 
 compBselect.addEventListener("change", function(ev){
     let compB = optArrayB.filter(x=>x.selected)[0].innerHTML;
-    R.setCompB(compA);
+    R.setCompB(compB);
     recalibrateExchangeTarget();
     recalibrateExchangeRecord();
     recalibrateVapFrac();

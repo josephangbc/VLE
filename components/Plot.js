@@ -17,10 +17,10 @@ export default class Plot {
     this.z = this.RR.z;
 
     this.cache = [
-      {name: "yx_constP", args:[0,0,[0,0],["",""]], data:[], layout:undefined},
-      {name: "yx_constT", args:[0,0,[0,0],["",""]], data:[],layout:undefined},
-      {name: "Txy", args:[0,0,[0,0], ["",""]], data:[], layout:undefined},
-      {name: "Pxy", args:[0,0,[0,0], ["",""]], data:[], layout:undefined}
+      {name: "yx_constP", args:[0,0,0,"",""], data:[], layout:undefined},
+      {name: "yx_constT", args:[0,0,0,"",""], data:[],layout:undefined},
+      {name: "Txy", args:[0,0,0,"",""], data:[], layout:undefined},
+      {name: "Pxy", args:[0,0,0,"",""], data:[], layout:undefined}
     ];
     // args = [T,P,z,components]
 
@@ -49,15 +49,16 @@ export default class Plot {
    // Constant P Plotting 
    calc_yx_constP(){
      let plot_idx = 0;
-     let prev_args = this.cache[0].args;
-     let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+     let prev_args = this.cache[plot_idx].args;
+     let args = [this.RR.T, this.RR.P, this.RR.z[0], this.RR.components[0],this.RR.components[1]];
      // Plotting for the first time
      if (this.cache[plot_idx].data[0] == undefined){
        // data[0] is trace of 45 degree line
        // Calculate if (1) Not defined
        this.cache[plot_idx].data[0] = this.create_45degLine();
      } 
-     if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) || (args[3] != prev_args[3]) ){
+     if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) 
+     || (args[3] != prev_args[3]) || (args[4] != prev_args[4]) ){
         // data[1] is trace of eqm curve
         // Calculate if (1) Not defined (2) P is different (3) components are different
       let z_arr = this.generateZ_arr();
@@ -66,7 +67,8 @@ export default class Plot {
       trace.hovertemplate = '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
       this.cache[plot_idx].data[1] = trace; 
      }
-     if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) || (args[2] != prev_args[2]) || (args[3] != prev_args[3]) ){
+     if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) 
+     || (args[2] != prev_args[2]) || (args[3] != prev_args[3]) || (args[4] != prev_args[4])){
       // data[2] is trace of eqm curve restricted to only 1 value of z
       // Calculate if (1) Not defined (2) P is different (3) components are different (4) z is different
       let z_arr = [this.RR.z[0]]
@@ -99,21 +101,22 @@ export default class Plot {
      this.layout = this.cache[plot_idx].layout;
 
      // Save the arguments used by the plot
-     this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+     this.cache[plot_idx].args = args;
   }
 
     // Constant T Plotting 
     calc_yx_constT(){
       let plot_idx = 1;
-      let prev_args = this.cache[1].args;
-      let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+      let prev_args = this.cache[plot_idx].args;
+      let args = [this.RR.T, this.RR.P, this.RR.z[0], this.RR.components[0],this.RR.components[1]];
        // Plotting for the first time
        if (this.cache[plot_idx].data[0] == undefined){
          // data[0] is trace of 45 degree line
          // Calculate if (1) Not defined
          this.cache[plot_idx].data[0] = this.create_45degLine();
        } 
-       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) || (args[3] != prev_args[3]) ){
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) 
+       || (args[3] != prev_args[3]) || (args[4] != prev_args[4]) ){
           // data[1] is trace of eqm curve
           // Calculate if (1) Not defined (2) T is different (3) components are different
         let z_arr = this.generateZ_arr();
@@ -122,7 +125,8 @@ export default class Plot {
         trace.hovertemplate = '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
         this.cache[plot_idx].data[1] = trace; 
        }
-       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) || (args[2] != prev_args[2]) || (args[3] != prev_args[3]) ){
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) 
+       || (args[2] != prev_args[2]) || (args[3] != prev_args[3]) || (args[4] != prev_args[4]) ){
         // data[2] is trace of eqm curve restricted to only 1 value of z
         // Calculate if (1) Not defined (2) T is different (3) components are different (4) z is different
         let z_arr = [this.RR.z[0]]
@@ -155,28 +159,30 @@ export default class Plot {
        this.layout = this.cache[plot_idx].layout;
   
        // Save the arguments used by the plot
-       this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+       this.cache[plot_idx].args = args;
     }
 
     calc_Txy(){
       let plot_idx = 2;
-      let prev_args = this.cache[2].args;
-      let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+      let prev_args = this.cache[plot_idx].args;
+      let args = [this.RR.T, this.RR.P, this.RR.z[0], this.RR.components[0],this.RR.components[1]];
 
       // Generate points for entire range of z values
       let z_arr = this.generateZ_arr();
       let points = this.generate_yx_constP_data(z_arr);
        // Plotting for the first time
-       if ( (this.cache[plot_idx].data[0] == undefined) || (args[1] != prev_args[1]) ){
+       if ( (this.cache[plot_idx].data[0] == undefined) || (args[1] != prev_args[1]) 
+       || (args[3] != prev_args[3]) || (args[4] != prev_args[4]) ){
          // data[0] is the bubble point curve
-         // Calculated if (1) Not defined (2) P changed
+         // Calculated if (1) Not defined (2) P changed (3) Components changed
         let trace_bbp = this.create_trace_bbp(points);
         trace_bbp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>x</i>: %{x:.3r}';
         this.cache[plot_idx].data[0] = trace_bbp;
        }
-       if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) ){
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) 
+       || (args[3] != prev_args[3]) || (args[4] != prev_args[4]) ){
         // data[1] is the dew point curve
-        // Calculated if (1) Not defined (2) P changed
+        // Calculated if (1) Not defined (2) P changed (3) Components changed
         let trace_dp = this.create_trace_dp(points);
         trace_dp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>y</i>: %{y:.3r}';
         this.cache[plot_idx].data[1] = trace_dp;
@@ -198,7 +204,7 @@ export default class Plot {
        this.layout = this.cache[plot_idx].layout;
   
        // Save the arguments used by the plot
-       this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+       this.cache[plot_idx].args = args;
       // // Plots (x,T) and (y,T) for const P,z
   
       // this.data = [];
@@ -225,20 +231,22 @@ export default class Plot {
     calc_Pxy(){
       let plot_idx = 3;
       let prev_args = this.cache[plot_idx].args;
-      let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+      let args = [this.RR.T, this.RR.P, this.RR.z[0], this.RR.components[0],this.RR.components[1]];
 
       // Generate points for entire range of z values
       let z_arr = this.generateZ_arr();
       let points = this.generate_yx_constT_data(z_arr);
        // Plotting for the first time
-       if ( (this.cache[plot_idx].data[0] == undefined) || (args[0] != prev_args[0]) ){
+       if ( (this.cache[plot_idx].data[0] == undefined) || (args[0] != prev_args[0]) 
+       || (args[3] != prev_args[3]) || (args[4] != prev_args[4]) ){
          // data[0] is the bubble point curve
-         // Calculated if (1) Not defined (2) T changed
+         // Calculated if (1) Not defined (2) T changed (3) Components changed
         let trace_bbp = this.create_trace_bbp(points);
         trace_bbp.hovertemplate = '<i>P</i>: %{y:.3r} kPa'+' <br><i>x</i>: %{x:.3r}';
         this.cache[plot_idx].data[0] = trace_bbp;
        }
-       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) ){
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) 
+       || (args[3] != prev_args[3]) || (args[4] != prev_args[4]) ){
         // data[1] is the dew point curve
         // Calculated if (1) Not defined (2) T changed
         let trace_dp = this.create_trace_dp(points);
@@ -262,7 +270,7 @@ export default class Plot {
        this.layout = this.cache[plot_idx].layout;
   
        // Save the arguments used by the plot
-       this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+       this.cache[plot_idx].args = args;
       // // // Plots (x,T) and (y,T) for const P,z
       // // Plots (x,T) and (y,T) for const P,z
   
@@ -541,7 +549,7 @@ export default class Plot {
 
 }
 
-function isArrayEqual(arr1,arr2){
+function is_arr_eq(arr1,arr2){
   if (arr1.length != arr2.length){
     return false;
   } 
