@@ -46,8 +46,6 @@ const plotParams = {
     Pmin: Pmin,
     Pmax: Pmax,
     numPoints: 100,
-    Width:400,
-    Height:400
 }
 
 
@@ -309,12 +307,8 @@ function updateAnimation() {
 }
 
 function updatePlot(){
-    if (plot.recalc_scheduled){
+    if (plot.replot_scheduled){
         calcPlot(); 
-    }
-    let newTIME = new Date().getTime();
-    let dt = newTIME - plot.lastDrawTime;
-    if (plot.replot_scheduled && dt >= PLOT_REFRESH_PERIOD){
         plot.draw();
     }
 }

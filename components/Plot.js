@@ -6,32 +6,26 @@ export default class Plot {
     this.RR = RR; // Rachford Rice current solution
     this.data;
     this.layout;
-    this.plot_options = ["yx_constP","yx_constT","Txy","Pxy"];
-    this.curr_opt = -1; // tracks currently selected plot option
-
-    // Following variables to check which variable deviated
-    this.T = this.RR.T;
-    this.P = this.RR.P;
-    this.z = this.RR.z;
-    this.components = this.RR.components;
-
-    this.recalc_scheduled = true;
     this.replot_scheduled = true;
-    this.lastDrawTime =  new Date().getTime();
+    this.alreadyDrawn = false;
   }
 
   schedule_replot(){
-    this.recalc_scheduled = true;
     this.replot_scheduled = true;
   }
 
 
   draw(){
-    this.layout.autosize="true";
-    var config = {responsive: true};
-    Plotly.newPlot(this.params.divID, this.data,this.layout,config);
+    this.layout.autosize=true;
+    let config = {responsive: true};
+    
+    if (this.alreadyDrawn){
+      Plotly.react(this.params.divID, this.data,this.layout,config)
+      this.alreadyDrawn = true;
+    } else {
+      Plotly.newPlot(this.params.divID, this.data,this.layout,config);
+    }
     this.replot_scheduled = false;
-    this.lastDrawTime = new Date().getTime();
   }
 
   generateZ_arr(){
@@ -267,9 +261,6 @@ export default class Plot {
       
     this.layout =  this.create_layout_yx();
     this.layout.title = title;
-    this.recalc_scheduled = false;
-
-    this.curr_opt = 0;
   }
 
   // Constant T Plotting 
@@ -306,9 +297,6 @@ export default class Plot {
       
     this.layout =  this.create_layout_yx();
     this.layout.title = title;
-    this.recalc_scheduled = false;
-
-    this.curr_opt = 1;
   }
 
   calc_Txy(){
@@ -333,9 +321,6 @@ export default class Plot {
     this.data.push(tieline);
 
     this.layout = this.create_layout_Txy();
-    this.recalc_scheduled = false;
-
-    this.curr_opt = 2;
   }
 
   calc_Pxy(){
@@ -360,9 +345,7 @@ export default class Plot {
     this.data.push(tieline);
 
     this.layout = this.create_layout_Pxy();
-    this.recalc_scheduled = false;
 
-    this.curr_opt = 3;
   }
 
 
