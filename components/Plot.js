@@ -27,10 +27,9 @@ export default class Plot {
 
 
   draw(){
-   /* this.layout.width=this.params.Width;
-    this.layout.height=this.params.Height;
-    this.layout.autosize="false";*/
-    Plotly.newPlot(this.params.divID, this.data,this.layout);
+    this.layout.autosize="true";
+    var config = {responsive: true};
+    Plotly.newPlot(this.params.divID, this.data,this.layout,config);
     this.replot_scheduled = false;
     this.lastDrawTime = new Date().getTime();
   }

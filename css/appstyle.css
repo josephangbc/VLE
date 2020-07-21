@@ -17,7 +17,7 @@ html {
 
 body {
   color: var(--text-color);
-  font-size: 17px;
+  font-size: 1rem;
 }
 
 body, h1, h2 {
@@ -66,9 +66,9 @@ a, a:link    { color: var(--link-color) }
     "nav content side"
     "footer footer footer";
   height: 100vh;
-  grid-template-columns: 200px 1fr 200px;
-  grid-template-rows: auto 1fr auto;
-  grid-gap: 5px;
+  grid-template-columns: 15vw 70vw 15vw;
+  grid-template-rows: 10vh 80vh 10vh;
+  grid-gap: 3px;
 }
 
 header {
@@ -161,10 +161,10 @@ footer {
 /* Links inside the navbar */
 .navbar a {
   float: left;
-  font-size: 16px;
+  font-size: 1rem;
   color: white;
   text-align: center;
-  padding: 14px 16px;
+  padding: 1rem 1rem;
   text-decoration: none;
 }
 

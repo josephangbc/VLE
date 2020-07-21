@@ -63,6 +63,12 @@ let centerDiv = document.getElementById("centerDiv");
 // Create the Raphael paper that we will use for drawing and creating graphical objects
 let paper = new Raphael(centerDiv);
 
+// Assign the Width and Height of the canvas into variables for convenience
+let pWidth = paper.canvas.clientWidth;
+let pHeight = paper.canvas.clientHeight;
+// Ensure Raphael canvas and appended items scale with window size
+paper.setViewBox(0,0,pWidth,pHeight,true);
+
 // RachFordRice Calculations
 let compAselect = document.getElementById("compAselect");
 let compBselect = document.getElementById("compBselect");
