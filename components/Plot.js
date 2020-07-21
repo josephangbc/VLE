@@ -8,6 +8,24 @@ export default class Plot {
     this.layout;
     this.replot_scheduled = true;
     this.alreadyDrawn = false;
+
+    this.plot_idx = -1; // Nothing selected
+
+    this.T = this.RR.T;
+    this.P = this.RR.P;
+    this.components = this.RR.components;
+    this.z = this.RR.z;
+
+    this.cache = [
+      {name: "yx_constP", args:[0,0,[0,0],["",""]], data:[], layout:undefined},
+      {name: "yx_constT", args:[0,0,[0,0],["",""]], data:[],layout:undefined},
+      {name: "Txy", args:[0,0,[0,0], ["",""]], data:[], layout:undefined},
+      {name: "Pxy", args:[0,0,[0,0], ["",""]], data:[], layout:undefined}
+    ];
+    // args = [T,P,z,components]
+
+
+    
   }
 
   schedule_replot(){
@@ -27,6 +45,248 @@ export default class Plot {
     }
     this.replot_scheduled = false;
   }
+
+   // Constant P Plotting 
+   calc_yx_constP(){
+     let plot_idx = 0;
+     let prev_args = this.cache[0].args;
+     let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+     // Plotting for the first time
+     if (this.cache[plot_idx].data[0] == undefined){
+       // data[0] is trace of 45 degree line
+       // Calculate if (1) Not defined
+       this.cache[plot_idx].data[0] = this.create_45degLine();
+     } 
+     if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) || (args[3] != prev_args[3]) ){
+        // data[1] is trace of eqm curve
+        // Calculate if (1) Not defined (2) P is different (3) components are different
+      let z_arr = this.generateZ_arr();
+      let points = this.generate_yx_constP_data(z_arr);
+      let trace = this.create_trace_yx(points);
+      trace.hovertemplate = '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
+      this.cache[plot_idx].data[1] = trace; 
+     }
+     if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) || (args[2] != prev_args[2]) || (args[3] != prev_args[3]) ){
+      // data[2] is trace of eqm curve restricted to only 1 value of z
+      // Calculate if (1) Not defined (2) P is different (3) components are different (4) z is different
+      let z_arr = [this.RR.z[0]]
+      let points_fixedZ = this.generate_yx_constP_data(z_arr);
+      let trace = this.create_trace_yx(points_fixedZ);
+      trace.hovertemplate = '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
+      trace.name = "eqm at z = " + Math.round(this.RR.z[0]*1000)/1000;
+      this.cache[plot_idx].data[2] = trace;
+     }
+     if (true){
+       // data[3] is the current point marker
+       // Always calculate
+       let z_arr = [this.RR.z[0]]
+       let points_fixedZ = this.generate_yx_constP_data(z_arr);
+       let marker = this.create_marker_yx(points_fixedZ);
+       marker.name = "current";
+       marker.hovertemplate = '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
+       marker.text = [this.RR.T];
+      this.cache[plot_idx].data[3] = marker;
+     }
+     if (this.cache[plot_idx].layout == undefined){
+       // Change layout if not defined
+       let layout = this.create_layout_yx();
+       layout.title = 'y-x plot (P = '+ Math.round(this.RR.P*100)/100 + ' kPa)';
+       this.cache[plot_idx].layout = layout;
+     }
+
+     // Store the newly calculated data
+     this.data = this.cache[plot_idx].data;
+     this.layout = this.cache[plot_idx].layout;
+
+     // Save the arguments used by the plot
+     this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+  }
+
+    // Constant T Plotting 
+    calc_yx_constT(){
+      let plot_idx = 1;
+      let prev_args = this.cache[1].args;
+      let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+       // Plotting for the first time
+       if (this.cache[plot_idx].data[0] == undefined){
+         // data[0] is trace of 45 degree line
+         // Calculate if (1) Not defined
+         this.cache[plot_idx].data[0] = this.create_45degLine();
+       } 
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) || (args[3] != prev_args[3]) ){
+          // data[1] is trace of eqm curve
+          // Calculate if (1) Not defined (2) T is different (3) components are different
+        let z_arr = this.generateZ_arr();
+        let points = this.generate_yx_constT_data(z_arr);
+        let trace = this.create_trace_yx(points);
+        trace.hovertemplate = '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
+        this.cache[plot_idx].data[1] = trace; 
+       }
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) || (args[2] != prev_args[2]) || (args[3] != prev_args[3]) ){
+        // data[2] is trace of eqm curve restricted to only 1 value of z
+        // Calculate if (1) Not defined (2) T is different (3) components are different (4) z is different
+        let z_arr = [this.RR.z[0]]
+        let points_fixedZ = this.generate_yx_constT_data(z_arr);
+        let trace = this.create_trace_yx(points_fixedZ);
+        trace.hovertemplate = '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
+        trace.name = "eqm at z = " + Math.round(this.RR.z[0]*1000)/1000;
+        this.cache[plot_idx].data[2] = trace;
+       }
+       if (true){
+         // data[3] is the current point marker
+         // Always calculate
+         let z_arr = [this.RR.z[0]]
+         let points_fixedZ = this.generate_yx_constT_data(z_arr);
+         let marker = this.create_marker_yx(points_fixedZ);
+         marker.name = "current";
+         marker.hovertemplate = '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
+         marker.text = [this.RR.P];
+        this.cache[plot_idx].data[3] = marker;
+       }
+       if (this.cache[plot_idx].layout == undefined){
+         // Change layout if not defined
+         let layout = this.create_layout_yx();
+         layout.title = 'y-x plot (T = '+ Math.round(this.RR.T*100)/100 + ' C)';
+         this.cache[plot_idx].layout = layout;
+       }
+  
+       // Store the newly calculated data
+       this.data = this.cache[plot_idx].data;
+       this.layout = this.cache[plot_idx].layout;
+  
+       // Save the arguments used by the plot
+       this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+    }
+
+    calc_Txy(){
+      let plot_idx = 2;
+      let prev_args = this.cache[2].args;
+      let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+
+      // Generate points for entire range of z values
+      let z_arr = this.generateZ_arr();
+      let points = this.generate_yx_constP_data(z_arr);
+       // Plotting for the first time
+       if ( (this.cache[plot_idx].data[0] == undefined) || (args[1] != prev_args[1]) ){
+         // data[0] is the bubble point curve
+         // Calculated if (1) Not defined (2) P changed
+        let trace_bbp = this.create_trace_bbp(points);
+        trace_bbp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>x</i>: %{x:.3r}';
+        this.cache[plot_idx].data[0] = trace_bbp;
+       }
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[1] != prev_args[1]) ){
+        // data[1] is the dew point curve
+        // Calculated if (1) Not defined (2) P changed
+        let trace_dp = this.create_trace_dp(points);
+        trace_dp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>y</i>: %{y:.3r}';
+        this.cache[plot_idx].data[1] = trace_dp;
+       }
+       if (true){
+         // data[2] is tieline or point in 1 phase region
+         // always calculate
+        let tieline = this.create_tieline(this.RR.T);
+        tieline.hovertemplate = '<i>T</i>: %{y:.3r}'+' <br><i>%{text}</i>: %{x:.3r}';
+        this.cache[plot_idx].data[2] = tieline;
+       }
+       if (this.cache[plot_idx].layout == undefined){
+         // set if layout is undefined
+        this.cache[plot_idx].layout = this.create_layout_Txy();
+       }
+  
+       // Store the newly calculated data
+       this.data = this.cache[plot_idx].data;
+       this.layout = this.cache[plot_idx].layout;
+  
+       // Save the arguments used by the plot
+       this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+      // // Plots (x,T) and (y,T) for const P,z
+  
+      // this.data = [];
+  
+      // // Generate points for entire range of z values
+      // let z_arr = this.generateZ_arr();
+      // let points = this.generate_yx_constP_data(z_arr);
+      
+      // let trace_bbp = this.create_trace_bbp(points);
+      // trace_bbp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>x</i>: %{x:.3r}';
+      // this.data.push(trace_bbp);
+  
+      // let trace_dp = this.create_trace_dp(points);
+      // trace_dp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>y</i>: %{y:.3r}';
+      // this.data.push(trace_dp);
+  
+      // let tieline = this.create_tieline(this.RR.T);
+      // tieline.hovertemplate = '<i>T</i>: %{y:.3r}'+' <br><i>%{text}</i>: %{x:.3r}';
+      // this.data.push(tieline);
+  
+      // this.layout = this.create_layout_Txy();
+    }
+  
+    calc_Pxy(){
+      let plot_idx = 3;
+      let prev_args = this.cache[plot_idx].args;
+      let args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+
+      // Generate points for entire range of z values
+      let z_arr = this.generateZ_arr();
+      let points = this.generate_yx_constT_data(z_arr);
+       // Plotting for the first time
+       if ( (this.cache[plot_idx].data[0] == undefined) || (args[0] != prev_args[0]) ){
+         // data[0] is the bubble point curve
+         // Calculated if (1) Not defined (2) T changed
+        let trace_bbp = this.create_trace_bbp(points);
+        trace_bbp.hovertemplate = '<i>P</i>: %{y:.3r} kPa'+' <br><i>x</i>: %{x:.3r}';
+        this.cache[plot_idx].data[0] = trace_bbp;
+       }
+       if ( (this.cache[plot_idx].data[1] == undefined) || (args[0] != prev_args[0]) ){
+        // data[1] is the dew point curve
+        // Calculated if (1) Not defined (2) T changed
+        let trace_dp = this.create_trace_dp(points);
+        trace_dp.hovertemplate = '<i>P</i>: %{y:.3r} kPa'+' <br><i>y</i>: %{y:.3r}';
+        this.cache[plot_idx].data[1] = trace_dp;
+       }
+       if (true){
+         // data[2] is tieline or point in 1 phase region
+         // always calculate
+        let tieline = this.create_tieline(this.RR.P);
+        tieline.hovertemplate = '<i>P</i>: %{y:.3r}'+' <br><i>%{text}</i>: %{x:.3r}';
+        this.cache[plot_idx].data[2] = tieline;
+       }
+       if (this.cache[plot_idx].layout == undefined){
+         // set if layout is undefined
+        this.cache[plot_idx].layout = this.create_layout_Pxy();
+       }
+  
+       // Store the newly calculated data
+       this.data = this.cache[plot_idx].data;
+       this.layout = this.cache[plot_idx].layout;
+  
+       // Save the arguments used by the plot
+       this.cache[plot_idx].args = [this.RR.T, this.RR.P, this.RR.z, this.RR.components];
+      // // // Plots (x,T) and (y,T) for const P,z
+      // // Plots (x,T) and (y,T) for const P,z
+  
+      // this.data = [];
+  
+      // // Generate points for entire range of z values
+      // let z_arr = this.generateZ_arr();
+      // let points = this.generate_yx_constT_data(z_arr);
+      
+      // let trace_bbp = this.create_trace_bbp(points);
+      // trace_bbp.hovertemplate = '<i>P</i>: %{y:.3r} kPa'+' <br><i>x</i>: %{x:.3r}';
+      // this.data.push(trace_bbp);
+  
+      // let trace_dp = this.create_trace_dp(points);
+      // trace_dp.hovertemplate = '<i>P</i>: %{y:.3r} kPa'+' <br><i>y</i>: %{y:.3r}';
+      // this.data.push(trace_dp);
+  
+      // let tieline = this.create_tieline(this.RR.P);
+      // tieline.hovertemplate = '<i>P</i>: %{y:.3r}'+' <br><i>%{text}</i>: %{x:.3r}';
+      // this.data.push(tieline);
+  
+      // this.layout = this.create_layout_Pxy();
+  
+    }
 
   generateZ_arr(){
     let z_arr = [];
@@ -69,10 +329,11 @@ export default class Plot {
       line: {shape: 'spline'},
       type: 'scatter',
       showlegend: false,
-      name: 'yx trace'
+      name: 'eqm'
     }
     return trace;
   }
+  
 
   create_trace_bbp(points){
     let x_arr = points.map(x=>x[0]);
@@ -227,126 +488,11 @@ export default class Plot {
     };
     return layout;
   }
-  // Constant P Plotting 
-  calc_yx_constP(){
-    this.data = []; // reset data
-    let xyLine = this.create_45degLine(); // 45 degree line to data
-    this.data.push(xyLine);
+ 
 
-    // Generate points for entire range of z values
-    let z_arr = this.generateZ_arr();
-    let points = this.generate_yx_constP_data(z_arr);
-    let trace_eqm = this.create_trace_yx(points);
-    trace_eqm.hovertemplate = '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
-    trace_eqm.name = "eqm";
-    this.data.push(trace_eqm);
 
-    // Generate points for current value of z
-    let zA = this.RR.z[0];
-    z_arr = [zA];
-    let points_fixedZ = this.generate_yx_constP_data(z_arr);
-    let trace_eqm_fixedZ = this.create_trace_yx(points_fixedZ);
-    trace_eqm_fixedZ.hovertemplate = '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
-    trace_eqm_fixedZ.name = "eqm at z = " + Math.round(this.RR.z[0]*1000)/1000;
-    this.data.push(trace_eqm_fixedZ);
 
-    // Current point on (x,y) graph
-    let marker = this.create_marker_yx(points_fixedZ);
-    marker.name = "current";
-    marker.hovertemplate = '<i>T</i>: %{text:.3r} C'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
-    marker.text = [this.RR.T];
-    this.data.push(marker);
 
-    let title = 'y-x plot (P = '+ Math.round(this.RR.P*100)/100 + ' kPa)';
-      
-    this.layout =  this.create_layout_yx();
-    this.layout.title = title;
-  }
-
-  // Constant T Plotting 
-  calc_yx_constT(){
-    this.data = []; // reset data
-    let xyLine = this.create_45degLine(); // 45 degree line to data
-    this.data.push(xyLine);
-
-    // Generate points for entire range of z values
-    let z_arr = this.generateZ_arr();
-    let points = this.generate_yx_constT_data(z_arr);
-    let trace_eqm = this.create_trace_yx(points);
-    trace_eqm.hovertemplate = '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
-    trace_eqm.name = "eqm";
-    this.data.push(trace_eqm);
-
-    // Generate points for current value of z
-    let zA = this.RR.z[0];
-    z_arr = [zA];
-    let points_fixedZ = this.generate_yx_constT_data(z_arr);
-    let trace_eqm_fixedZ = this.create_trace_yx(points_fixedZ);
-    trace_eqm_fixedZ.hovertemplate = '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
-    trace_eqm_fixedZ.name = "eqm at z = " + Math.round(this.RR.z[0]*1000)/1000;
-    this.data.push(trace_eqm_fixedZ);
-
-    // Current point on (x,y) graph
-    let marker = this.create_marker_yx(points_fixedZ);
-    marker.name = "current";
-    marker.hovertemplate = '<i>P</i>: %{text:.3r} kPa'+' <br><i>y</i>: %{y:.3r}' +'<br><i>x</i>: %{x:.3r}';
-    marker.text = [this.RR.P];
-    this.data.push(marker);
-
-    let title = 'y-x plot (T = '+ Math.round(this.RR.T*100)/100 + ' C)';
-      
-    this.layout =  this.create_layout_yx();
-    this.layout.title = title;
-  }
-
-  calc_Txy(){
-    // Plots (x,T) and (y,T) for const P,z
-
-    this.data = [];
-
-    // Generate points for entire range of z values
-    let z_arr = this.generateZ_arr();
-    let points = this.generate_yx_constP_data(z_arr);
-    
-    let trace_bbp = this.create_trace_bbp(points);
-    trace_bbp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>x</i>: %{x:.3r}';
-    this.data.push(trace_bbp);
-
-    let trace_dp = this.create_trace_dp(points);
-    trace_dp.hovertemplate = '<i>T</i>: %{y:.3r} C'+' <br><i>y</i>: %{y:.3r}';
-    this.data.push(trace_dp);
-
-    let tieline = this.create_tieline(this.RR.T);
-    tieline.hovertemplate = '<i>T</i>: %{y:.3r}'+' <br><i>%{text}</i>: %{x:.3r}';
-    this.data.push(tieline);
-
-    this.layout = this.create_layout_Txy();
-  }
-
-  calc_Pxy(){
-    // Plots (x,T) and (y,T) for const P,z
-
-    this.data = [];
-
-    // Generate points for entire range of z values
-    let z_arr = this.generateZ_arr();
-    let points = this.generate_yx_constT_data(z_arr);
-    
-    let trace_bbp = this.create_trace_bbp(points);
-    trace_bbp.hovertemplate = '<i>P</i>: %{y:.3r} kPa'+' <br><i>x</i>: %{x:.3r}';
-    this.data.push(trace_bbp);
-
-    let trace_dp = this.create_trace_dp(points);
-    trace_dp.hovertemplate = '<i>P</i>: %{y:.3r} kPa'+' <br><i>y</i>: %{y:.3r}';
-    this.data.push(trace_dp);
-
-    let tieline = this.create_tieline(this.RR.P);
-    tieline.hovertemplate = '<i>P</i>: %{y:.3r}'+' <br><i>%{text}</i>: %{x:.3r}';
-    this.data.push(tieline);
-
-    this.layout = this.create_layout_Pxy();
-
-  }
 
 
   generate_yx_constP_data(zA_arr){
@@ -393,4 +539,16 @@ export default class Plot {
     return points;
   }
 
+}
+
+function isArrayEqual(arr1,arr2){
+  if (arr1.length != arr2.length){
+    return false;
+  } 
+  for (let i = 0; i<arr1.length;i++){
+    if (arr1[i] != arr2[i]){
+      return false;
+    }
+  }
+  return true;
 }
